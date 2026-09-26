@@ -1,0 +1,233 @@
+💡 Proyecto: COBOL BANKING BATCH SYSTEM
+
+Un sistema bancario empresarial de procesamiento nocturno, simulando un entorno real de mainframe.
+
+OBJETIVO PROFESIONAL:
+Demostrar competencias en desarrollo COBOL empresarial, procesamiento batch, manejo de ficheros, control de errores, reporting y arquitectura de sistemas legacy/mainframe.
+
+ESCENARIO:
+Durante la noche, el sistema procesa miles de movimientos bancarios, valida operaciones, actualiza saldos, calcula comisiones/intereses y genera informes detallados de resultados y errores.
+
+Esto es considerablemente más atractivo para reclutadores COBOL que un CRUD tradicional.
+
+═══════════════════════════════════════════════════════════════
+
+COMPONENTES DEL SISTEMA:
+
+1. FICHEROS DE ENTRADA Y ESTRUCTURAS DE DATOS
+
+Ficheros secuenciales con registros de longitud fija:
+
+CLIENTES.DAT
+CUENTAS.DAT
+MOVIMIENTOS.DAT
+HISTORICO.DAT
+
+Ejemplo de registro:
+0000012345MARIO PICO BUSQUIER     ES0100000000001234567890
+
+CONCEPTOS CLAVE A DEMOSTRAR:
+- FILE SECTION / FD
+- Registros de longitud fija (RECORD CONTAINS)
+- PIC (picture clauses)
+- REDEFINES (múltiples vistas del mismo registro)
+- OCCURS (arrays/tablas)
+- Lectura secuencial y aleatoria
+- OPEN INPUT / OUTPUT / I-O / EXTEND
+- READ / WRITE / REWRITE / DELETE
+- FILE STATUS y manejo de errores de E/S
+- Nivel 88 (condiciones nombradas)
+
+2. PROCESO BATCH PRINCIPAL
+
+Programa BANKPROC con flujo de procesamiento:
+
+BANKPROC
+   │
+   ├── Inicialización (apertura de ficheros, lectura de parámetros)
+   ├── Leer movimiento
+   ├── Validar cuenta origen y destino
+   ├── Validar importe y formato
+   ├── Comprobar saldo disponible
+   ├── Verificar estado de cuentas (activa/bloqueada)
+   ├── Aplicar operación (débito/crédito)
+   ├── Calcular comisión (reglas de negocio)
+   ├── Actualizar saldos
+   ├── Registrar en histórico
+   └── Registrar resultado/error
+
+EJEMPLO DE TRANSACCIÓN:
+
+TRANSFERENCIA
+Cuenta origen: 000123
+Cuenta destino: 000987
+Importe:        1250.00 €
+
+VALIDACIONES:
+✓ Ambas cuentas existen
+✓ Cuentas activas (no bloqueadas)
+✓ Saldo suficiente en cuenta origen
+✓ Importe válido (positivo, formato correcto)
+✓ No es movimiento duplicado
+✓ Límites diarios no excedidos
+
+POST-VALIDACIÓN:
+- Actualizar saldo cuenta origen (-1250.00€)
+- Actualizar saldo cuenta destino (+1250.00€)
+- Calcular comisión (ej: 0.1% = 1.25€)
+- Registrar en histórico con timestamp
+- Generar registro de auditoría
+
+3. GESTIÓN DE ERRORES Y TRAZABILIDAD
+
+En lugar de DISPLAY "ERROR", generar ficheros estructurados:
+
+ERRORS.DAT - Errores de procesamiento
+AUDIT.DAT  - Log de auditoría completo
+REJECT.DAT - Transacciones rechazadas
+
+CÓDIGOS DE ERROR:
+E001 - CUENTA INEXISTENTE
+E002 - SALDO INSUFICIENTE
+E003 - CUENTA BLOQUEADA
+E004 - IMPORTE INVALIDO
+E005 - MOVIMIENTO DUPLICADO
+E006 - CUENTA INACTIVA
+E007 - LÍMITE DIARIO EXCEDIDO
+E008 - FORMATO REGISTRO INCORRECTO
+E009 - FECHA INVALIDA
+E010 - ERROR DE E/S EN FICHERO
+
+ESTRUCTURA DE REGISTRO DE ERROR:
+01 ERROR-RECORD.
+   05 ERR-TIMESTAMP        PIC X(26).
+   05 ERR-TRANSACTION-ID   PIC 9(10).
+   05 ERR-CODE            PIC X(4).
+   05 ERR-DESCRIPTION     PIC X(50).
+   05 ERR-ACCOUNT-ID      PIC 9(6).
+   05 ERR-AMOUNT          PIC 9(10)V99.
+
+CONCEPTOS A DEMOSTRAR:
+- Manejo estructurado de errores
+- FILE STATUS checking
+- Trazabilidad completa
+- Logging empresarial
+- Separación de errores críticos vs warnings
+
+4. Informes
+
+Al finalizar el batch:
+
+========================================
+      DAILY BANKING REPORT
+========================================
+
+MOVIMIENTOS PROCESADOS : 18,542
+MOVIMIENTOS ACEPTADOS  : 17,931
+MOVIMIENTOS RECHAZADOS :    611
+
+TOTAL TRANSACCIONES    : 2,845,231.50 €
+COMISIONES GENERADAS   :    12,843.20 €
+
+CUENTAS ACTUALIZADAS   : 8,214
+ERRORES                 : 611
+========================================
+
+Y podrías generar:
+
+REPORT.DAT
+ERRORS.DAT
+AUDIT.DAT
+5. JCL
+
+Aquí está una de las partes que haría que el proyecto destaque mucho más.
+
+Si quieres orientarlo realmente a puestos COBOL/mainframe, añadiría JCL para ejecutar el proceso:
+
+//BANKJOB  JOB ...
+//STEP01   EXEC PGM=BANKPROC
+//INPUT    DD DSN=BANK.MOVEMENTS,DISP=SHR
+//ACCOUNTS DD DSN=BANK.ACCOUNTS,DISP=SHR
+//OUTPUT   DD DSN=BANK.REPORT,DISP=(NEW,CATLG)
+//ERRORS   DD DSN=BANK.ERRORS,DISP=(NEW,CATLG)
+
+Así el proyecto deja de ser simplemente:
+
+“He programado algo en COBOL”
+
+y pasa a demostrar:
+
+COBOL + procesamiento batch + ficheros + JCL + arquitectura típica de sistemas empresariales.
+
+6. SQL / DB2 como segunda fase
+
+Después puedes hacer una segunda versión:
+
+COBOL
+  ↓
+DB2
+  ↓
+CLIENTES
+CUENTAS
+MOVIMIENTOS
+
+Utilizando Embedded SQL:
+
+EXEC SQL
+    SELECT BALANCE
+      INTO :WS-BALANCE
+      FROM ACCOUNTS
+     WHERE ACCOUNT_ID = :WS-ACCOUNT-ID
+END-EXEC
+
+Esto es especialmente interesante porque muchos puestos tradicionales combinan:
+
+COBOL + JCL + DB2 + CICS
+
+No necesitas implementar todo de golpe.
+
+🚀 Y añadiría una parte que te puede diferenciar
+
+Haz que el proyecto simule una migración de un sistema legacy.
+
+Por ejemplo:
+
+LEGACY BANKING SYSTEM
+        │
+        │ COBOL
+        ▼
+┌───────────────────┐
+│ Batch Processing  │
+│       +           │
+│      JCL          │
+└─────────┬─────────┘
+          │
+          ▼
+        DB2
+          │
+          ▼
+   Modern REST API
+
+Y haces una pequeña API moderna en Java/Spring Boot o Python que consulte los datos procesados por COBOL.
+
+Eso encaja además muchísimo mejor con tu perfil, porque puedes presentar el proyecto como:
+
+Legacy Modernization / COBOL Integration
+
+en lugar de intentar competir como alguien que lleva 20 años trabajando con mainframes.
+
+Nombre para GitHub
+
+Yo lo llamaría:
+
+cobol-banking-batch-system
+
+Y el README podría empezar:
+
+COBOL Banking Batch System
+
+A simulated enterprise banking batch-processing system built with COBOL and JCL, designed to demonstrate legacy/mainframe development practices including sequential file processing, validation, transaction handling, error management, reporting and batch job execution.
+
+Y pondría un diagrama de arquitectura, ejemplos de registros, JCL y capturas de los resultados.
+
+Si lo haces bien, este proyecto puede ser bastante más útil para una candidatura COBOL que 5 proyectos genéricos de CRUD. Además, puedes aprovechar tu experiencia previa en programación para añadir posteriormente DB2, CICS y una API moderna, construyendo progresivamente un proyecto que parezca una pequeña pieza de un sistema empresarial real
