@@ -114,12 +114,445 @@ CONCEPTOS A DEMOSTRAR:
 - Logging empresarial
 - Separación de errores críticos vs warnings
 
-4. Informes
+4. GENERACIÓN DE INFORMES (REPORTING)
 
-Al finalizar el batch:
+Informe principal al finalizar el batch:
 
 ========================================
       DAILY BANKING REPORT
+      Date: 2026-09-26
+      Run Time: 02:34:15
+========================================
+
+RESUMEN EJECUTIVO:
+MOVIMIENTOS PROCESADOS : 18,542
+MOVIMIENTOS ACEPTADOS  : 17,931
+MOVIMIENTOS RECHAZADOS :    611
+TASA DE ÉXITO          : 96.70%
+
+MÉTRICAS FINANCIERAS:
+TOTAL DÉBITOS          : 1,523,450.00 €
+TOTAL CRÉDITOS         : 1,321,781.50 €
+TOTAL TRANSACCIONES    : 2,845,231.50 €
+COMISIONES GENERADAS   :    12,843.20 €
+INTERESES CALCULADOS   :     3,421.15 €
+
+MÉTRICAS OPERATIVAS:
+CUENTAS ACTUALIZADAS   : 8,214
+CUENTAS CON ERROR      : 611
+TIEMPO DE EJECUCIÓN    : 00:04:23
+
+TOP 5 ERRORES:
+E002 - SALDO INSUFICIENTE     : 234
+E001 - CUENTA INEXISTENTE     : 187
+E005 - MOVIMIENTO DUPLICADO   :  98
+E003 - CUENTA BLOQUEADA       :  67
+E007 - LÍMITE DIARIO EXCEDIDO :  25
+
+========================================
+         END OF REPORT
+========================================
+
+FICHEROS GENERADOS:
+- REPORT.DAT    (informe principal)
+- ERRORS.DAT    (detalle de errores)
+- AUDIT.DAT     (log de auditoría)
+- SUMMARY.DAT   (resumen para otros sistemas)
+
+CONCEPTOS A DEMOSTRAR:
+- REPORT WRITER (opcional) o generación manual
+- Contadores y acumuladores
+- Cálculo de porcentajes
+- Formateo de salidas
+- Edición de números (PIC Z,ZZZ,ZZ9.99)
+- Manejo de fechas y horas
+5. JCL (JOB CONTROL LANGUAGE)
+
+Componente CRÍTICO para puestos COBOL/mainframe.
+
+JOB PRINCIPAL:
+//BANKJOB  JOB (ACCT),'DAILY BANKING',
+//             CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID
+//*
+//*  DAILY BANKING BATCH PROCESSING
+//*  RUNS NIGHTLY AT 02:00
+//*
+//STEP01   EXEC PGM=BANKPROC,REGION=4M
+//STEPLIB  DD DSN=BANK.LOADLIB,DISP=SHR
+//INPUT    DD DSN=BANK.MOVEMENTS,DISP=SHR
+//ACCOUNTS DD DSN=BANK.ACCOUNTS,DISP=SHR
+//CLIENTS  DD DSN=BANK.CLIENTS,DISP=SHR
+//REPORT   DD DSN=BANK.REPORT(&DATE),
+//            DISP=(NEW,CATLG,DELETE),
+//            DCB=(RECFM=FB,LRECL=132,BLKSIZE=1320)
+//ERRORS   DD DSN=BANK.ERRORS(&DATE),
+//            DISP=(NEW,CATLG,DELETE)
+//AUDIT    DD DSN=BANK.AUDIT(&DATE),
+//            DISP=(NEW,CATLG,DELETE)
+//SYSOUT   DD SYSOUT=*
+//SYSIN    DD *
+  RUNDATE=20260926
+  MODE=PRODUCTION
+/*
+
+JOB DE ORDENACIÓN (si aplica):
+//SORTJOB  JOB ...
+//STEP01   EXEC PGM=SORT
+//SYSOUT   DD SYSOUT=*
+//SORTIN   DD DSN=BANK.MOVEMENTS,DISP=SHR
+//SORTOUT  DD DSN=BANK.MOVEMENTS.SORTED,DISP=(NEW,CATLG)
+//SYSIN    DD *
+  SORT FIELDS=(1,10,CH,A)
+/*
+
+CONCEPTOS A DEMOSTRAR:
+- Job cards y parámetros
+- EXEC PGM y parámetros
+- DD statements (DISP, DSN, DCB)
+- SYSIN / SYSOUT
+- Paso de parámetros al programa
+- Catalogación de ficheros
+- Variables de sistema (&DATE, &SYSUID)
+- COND codes y manejo de condiciones
+
+ESTO DEMUESTRA:
+COBOL + procesamiento batch + ficheros + JCL + arquitectura empresarial
+
+6. SQL / DB2 (FASE 2)
+
+Integración con base de datos DB2 usando Embedded SQL:
+
+ARQUITECTURA:
+COBOL → DB2 → TABLAS (CLIENTES, CUENTAS, MOVIMIENTOS)
+
+EJEMPLO DE CÓDIGO:
+EXEC SQL
+    SELECT BALANCE, STATUS
+      INTO :WS-BALANCE, :WS-STATUS
+      FROM ACCOUNTS
+     WHERE ACCOUNT_ID = :WS-ACCOUNT-ID
+END-EXEC
+
+EXEC SQL
+    UPDATE ACCOUNTS
+       SET BALANCE = :WS-NEW-BALANCE
+     WHERE ACCOUNT_ID = :WS-ACCOUNT-ID
+END-EXEC
+
+EXEC SQL
+    INSERT INTO TRANSACTIONS
+    (TRANS_ID, ACCOUNT_ID, AMOUNT, TRANS_DATE, TYPE)
+    VALUES (:WS-TRANS-ID, :WS-ACCOUNT-ID, :WS-AMOUNT,
+            CURRENT TIMESTAMP, :WS-TYPE)
+END-EXEC
+
+CONCEPTOS A DEMOSTRAR:
+- DECLARE SECTION para variables host
+- SELECT INTO
+- INSERT, UPDATE, DELETE
+- Manejo de SQLCA (SQL Communication Area)
+- SQLCODE y SQLSTATE
+- Cursores para múltiples filas
+- COMMIT y ROLLBACK
+- Manejo de transacciones
+
+ESTO DEMUESTRA:
+COBOL + JCL + DB2 = Stack empresarial completo
+
+7. COPYBOOKS Y MODULARIDAD
+
+Estructura modular con COPYBOOKS reutilizables:
+
+COPYBOOKS:
+- BANK-COMMON.cpy      (constantes globales)
+- BANK-ERRORS.cpy      (códigos de error)
+- BANK-ACCOUNT.cpy     (estructura de cuenta)
+- BANK-CLIENT.cpy      (estructura de cliente)
+- BANK-TRANSACTION.cpy (estructura de transacción)
+- BANK-VALIDATE.cpy    (rutinas de validación)
+- BANK-CALC.cpy        (rutinas de cálculo)
+
+EJEMPLO DE COPYBOOK:
+* BANK-ERRORS.cpy
+       05 ERR-CODE           PIC X(4).
+           88 ERR-NONE       VALUE "0000".
+           88 ERR-ACCOUNT    VALUE "E001".
+           88 ERR-BALANCE    VALUE "E002".
+           88 ERR-BLOCKED    VALUE "E003".
+           88 ERR-AMOUNT     VALUE "E004".
+           88 ERR-DUPLICATE  VALUE "E005".
+
+Uso en programa principal:
+       COPY BANK-ERRORS.
+       
+       IF ERR-CODE = ERR-ACCOUNT
+           PERFORM HANDLE-ACCOUNT-ERROR
+       END-IF
+
+CONCEPTOS A DEMOSTRAR:
+- COPY statement
+- Reutilización de código
+- Nivel 88 (condiciones nombradas)
+- Estructuras compartidas
+- Mantenibilidad
+
+8. TESTING Y CALIDAD
+
+ESTRATEGIA DE TESTING:
+
+1. PRUEBAS UNITARIAS:
+   - Validación de cada módulo por separado
+   - Casos de prueba documentados
+   - Datos de prueba (test data)
+
+2. PRUEBAS DE INTEGRACIÓN:
+   - Flujo completo de transacciones
+   - Escenarios edge case
+   - Manejo de errores
+
+3. DATOS DE PRUEBA:
+   - Crear scripts para generar datos
+   - Casos válidos e inválidos
+   - Volúmenes realistas
+
+4. DOCUMENTACIÓN DE PRUEBAS:
+   - Test cases documentados
+   - Resultados esperados vs reales
+   - Screenshots de ejecución
+
+EJEMPLO DE CASO DE PRUEBA:
+TC001 - Transferencia válida
+  Input:  Cuenta origen=000123, destino=000987, importe=100.00
+  Expected: Saldo origen -100.00, saldo destino +100.00
+  Result: PASS
+
+TC002 - Saldo insuficiente
+  Input:  Cuenta origen=000456, destino=000789, importe=999999.99
+  Expected: Error E002, sin cambios en saldos
+  Result: PASS
+
+CONCEPTOS A DEMOSTRAR:
+- Planificación de pruebas
+- Datos de prueba
+- Validación de resultados
+- Documentación de calidad
+
+9. DOCUMENTACIÓN TÉCNICA
+
+DOCUMENTACIÓN ESENCIAL:
+
+1. README.md (profesional):
+   - Descripción del proyecto
+   - Arquitectura y diagramas
+   - Requisitos técnicos
+   - Instrucciones de instalación
+   - Ejemplos de ejecución
+   - Screenshots/resultados
+
+2. ESPECIFICACIONES TÉCNICAS:
+   - Especificación de ficheros (record layouts)
+   - Diagrama de flujo del programa
+   - Reglas de negocio implementadas
+   - Códigos de error y significados
+
+3. MANUAL DE EJECUCIÓN:
+   - Cómo compilar (GnuCOBOL)
+   - Cómo ejecutar
+   - Parámetros disponibles
+   - Interpretación de resultados
+
+4. DIAGRAMAS:
+   - Arquitectura del sistema
+   - Flujo de datos
+   - Estructura de ficheros
+   - Relación entre programas
+
+10. COMPILACIÓN Y EJECUCIÓN LOCAL
+
+USANDO GNUCOBOL (Open Source):
+
+COMPILAR:
+cobc -x -free BANKPROC.cob
+
+EJECUTAR:
+./BANKPROC
+
+SCRIPT DE PRUEBA (batch.sh):
+#!/bin/bash
+echo "Compilando..."
+cobc -x -free BANKPROC.cob
+echo "Ejecutando..."
+./BANKPROC < MOVIMIENTOS.DAT
+echo "Proceso completado"
+
+ESTO DEMUESTRA:
+- Conocimiento de herramientas open source
+- Capacidad de trabajar sin mainframe
+- Automatización básica
+
+🚀 DIFERENCIACIÓN: LEGACY MODERNIZATION
+
+Simula una migración/integración de sistema legacy:
+
+ARQUITECTURA HÍBRIDA:
+LEGACY BANKING SYSTEM
+        │
+        │ COBOL + JCL
+        ▼
+┌───────────────────┐
+│ Batch Processing  │
+│   (Mainframe)     │
+└─────────┬─────────┘
+          │
+          ▼
+        DB2
+          │
+          ▼
+   ┌──────────────┐
+   │   Middleware │
+   │  (MQ/CICS)   │
+   └──────┬───────┘
+          │
+          ▼
+   Modern REST API
+   (Java/Spring Boot o Python/FastAPI)
+
+INTEGRACIÓN MODERNA:
+API que consulta datos procesados por COBOL:
+
+GET /api/accounts/{id}
+GET /api/transactions
+POST /api/transactions
+
+EJEMPLO DE ARQUITECTURA:
+┌─────────────────────────────────────────┐
+│         FRONTEND (React/Angular)        │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│      REST API (Spring Boot/Python)      │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│      COBOL BATCH (Legacy Backend)       │
+│         + DB2 Database                  │
+└─────────────────────────────────────────┘
+
+ESTO ENCAJA PERFECTAMENTE CON TU PERFIL:
+- Legacy Modernization
+- COBOL Integration
+- Transformación digital
+- Puente entre legacy y moderno
+
+No compites como alguien con 20 años en mainframes, sino como alguien que entiende ambos mundos.
+
+═══════════════════════════════════════════════════════════════
+
+ESTRUCTURA DEL REPOSITORIO GITHUB:
+
+cobol-banking-batch-system/
+│
+├── README.md                    (documentación principal)
+├── LICENSE
+├── .gitignore
+│
+├── cobol/                       (código COBOL)
+│   ├── BANKPROC.cob            (programa principal)
+│   ├── BANKVAL.cob             (validaciones)
+│   ├── BANKCALC.cob            (cálculos)
+│   └── BANKRPT.cob             (reporting)
+│
+├── copybooks/                   (COPYBOOKS reutilizables)
+│   ├── BANK-COMMON.cpy
+│   ├── BANK-ERRORS.cpy
+│   ├── BANK-ACCOUNT.cpy
+│   └── BANK-TRANSACTION.cpy
+│
+├── jcl/                         (Job Control Language)
+│   ├── BANKJOB.jcl
+│   └── SORTJOB.jcl
+│
+├── data/                        (ficheros de datos)
+│   ├── CLIENTES.DAT
+│   ├── CUENTAS.DAT
+│   ├── MOVIMIENTOS.DAT
+│   └── test-data/              (datos de prueba)
+│
+├── output/                      (salidas generadas)
+│   ├── REPORT.DAT
+│   ├── ERRORS.DAT
+│   └── AUDIT.DAT
+│
+├── scripts/                     (scripts de utilidad)
+│   ├── compile.sh
+│   ├── run.sh
+│   └── generate-test-data.sh
+│
+├── docs/                        (documentación técnica)
+│   ├── architecture.md
+│   ├── record-layouts.md
+│   ├── error-codes.md
+│   └── user-guide.md
+│
+├── tests/                       (pruebas)
+│   ├── test-cases.md
+│   └── test-results/
+│
+└── diagrams/                    (diagramas)
+    ├── architecture.png
+    └── data-flow.png
+
+README.md PROFESIONAL:
+
+# COBOL Banking Batch System
+
+Enterprise banking batch-processing system built with COBOL and JCL, demonstrating legacy/mainframe development practices.
+
+## 🎯 Overview
+
+Simulated nightly batch processing system that handles thousands of banking transactions, validates operations, updates balances, calculates commissions/interest, and generates detailed reports.
+
+## 🏗️ Architecture
+
+[Diagrama de arquitectura aquí]
+
+## ✨ Features
+
+- Sequential file processing with fixed-length records
+- Transaction validation and error handling
+- Commission and interest calculations
+- Comprehensive reporting system
+- Audit trail and logging
+- JCL job definitions
+- Modular design with COPYBOOKS
+- Test data generation
+
+## 📋 Requirements
+
+- GnuCOBOL 3.x (para ejecución local)
+- Bash/Shell (para scripts)
+
+## 🚀 Quick Start
+
+```bash
+# Compilar
+./scripts/compile.sh
+
+# Generar datos de prueba
+./scripts/generate-test-data.sh
+
+# Ejecutar
+./scripts/run.sh
+```
+
+## 📊 Sample Output
+
+```
+========================================
+      DAILY BANKING REPORT
+      Date: 2026-09-26
 ========================================
 
 MOVIMIENTOS PROCESADOS : 18,542
@@ -128,106 +561,122 @@ MOVIMIENTOS RECHAZADOS :    611
 
 TOTAL TRANSACCIONES    : 2,845,231.50 €
 COMISIONES GENERADAS   :    12,843.20 €
-
-CUENTAS ACTUALIZADAS   : 8,214
-ERRORES                 : 611
 ========================================
+```
 
-Y podrías generar:
+## 📚 Documentation
 
-REPORT.DAT
-ERRORS.DAT
-AUDIT.DAT
-5. JCL
+- [Architecture](docs/architecture.md)
+- [Record Layouts](docs/record-layouts.md)
+- [Error Codes](docs/error-codes.md)
+- [User Guide](docs/user-guide.md)
 
-Aquí está una de las partes que haría que el proyecto destaque mucho más.
+## 🧪 Testing
 
-Si quieres orientarlo realmente a puestos COBOL/mainframe, añadiría JCL para ejecutar el proceso:
+Ver [test cases](tests/test-cases.md) para detalles sobre pruebas.
 
-//BANKJOB  JOB ...
-//STEP01   EXEC PGM=BANKPROC
-//INPUT    DD DSN=BANK.MOVEMENTS,DISP=SHR
-//ACCOUNTS DD DSN=BANK.ACCOUNTS,DISP=SHR
-//OUTPUT   DD DSN=BANK.REPORT,DISP=(NEW,CATLG)
-//ERRORS   DD DSN=BANK.ERRORS,DISP=(NEW,CATLG)
+## 🔮 Future Enhancements
 
-Así el proyecto deja de ser simplemente:
+- DB2 integration with Embedded SQL
+- CICS online transaction processing
+- REST API integration (Legacy Modernization)
+- VSAM file support
 
-“He programado algo en COBOL”
+## 👨‍💻 Author
 
-y pasa a demostrar:
+Mario Pico Busquier
 
-COBOL + procesamiento batch + ficheros + JCL + arquitectura típica de sistemas empresariales.
+## 📄 License
 
-6. SQL / DB2 como segunda fase
+[License]
 
-Después puedes hacer una segunda versión:
+═══════════════════════════════════════════════════════════════
 
-COBOL
-  ↓
-DB2
-  ↓
-CLIENTES
-CUENTAS
-MOVIMIENTOS
+ROADMAP DE DESARROLLO:
 
-Utilizando Embedded SQL:
+FASE 1 - FUNDAMENTOS (2-3 semanas):
+✓ Estructura básica del proyecto
+✓ Programas COBOL con ficheros secuenciales
+✓ Procesamiento batch básico
+✓ Manejo de errores
+✓ Generación de informes
+✓ JCL básico
+✓ Documentación README
 
-EXEC SQL
-    SELECT BALANCE
-      INTO :WS-BALANCE
-      FROM ACCOUNTS
-     WHERE ACCOUNT_ID = :WS-ACCOUNT-ID
-END-EXEC
+FASE 2 - MODULARIDAD (1-2 semanas):
+✓ COPYBOOKS reutilizables
+✓ Separación de responsabilidades
+✓ Scripts de compilación/ejecución
+✓ Datos de prueba
+✓ Casos de prueba documentados
 
-Esto es especialmente interesante porque muchos puestos tradicionales combinan:
+FASE 3 - AVANZADO (2-3 semanas):
+✓ Cálculos financieros complejos
+✓ Validaciones avanzadas
+✓ Reporting detallado
+✓ Auditoría completa
+✓ Optimización de código
 
-COBOL + JCL + DB2 + CICS
+FASE 4 - INTEGRACIÓN (opcional, 3-4 semanas):
+✓ DB2 con Embedded SQL
+✓ API REST moderna
+✓ Documentación de arquitectura híbrida
+✓ Demo de integración end-to-end
 
-No necesitas implementar todo de golpe.
+═══════════════════════════════════════════════════════════════
 
-🚀 Y añadiría una parte que te puede diferenciar
+CONSEJOS FINALES:
 
-Haz que el proyecto simule una migración de un sistema legacy.
+1. CALIDAD SOBRE CANTIDAD:
+   Mejor 3 programas bien hechos que 10 mediocres
 
-Por ejemplo:
+2. DOCUMENTACIÓN PROFESIONAL:
+   Los reclutadores valoran código bien documentado
 
-LEGACY BANKING SYSTEM
-        │
-        │ COBOL
-        ▼
-┌───────────────────┐
-│ Batch Processing  │
-│       +           │
-│      JCL          │
-└─────────┬─────────┘
-          │
-          ▼
-        DB2
-          │
-          ▼
-   Modern REST API
+3. COMMIT FRECUENTE:
+   Muestra evolución y metodología de trabajo
 
-Y haces una pequeña API moderna en Java/Spring Boot o Python que consulte los datos procesados por COBOL.
+4. EJEMPLOS REALES:
+   Incluye screenshots de ejecución y resultados
 
-Eso encaja además muchísimo mejor con tu perfil, porque puedes presentar el proyecto como:
+5. CÓDIGO LIMPIO:
+   - Indentación consistente
+   - Nombres descriptivos
+   - Comentarios donde aporten valor
+   - Estructura clara
 
-Legacy Modernization / COBOL Integration
+6. PRÁCTICA CONTINUA:
+   - Añade funcionalidades progresivamente
+   - Refactoriza cuando mejore tu conocimiento
+   - Mantén el código actualizado
 
-en lugar de intentar competir como alguien que lleva 20 años trabajando con mainframes.
+7. DIFERENCIACIÓN:
+   Este proyecto demuestra:
+   ✓ COBOL empresarial (no académico)
+   ✓ Procesamiento batch real
+   ✓ Manejo de errores profesional
+   ✓ Arquitectura de sistemas legacy
+   ✓ Capacidad de documentación
+   ✓ Metodología de trabajo
+   ✓ Visión de integración moderna
 
-Nombre para GitHub
+═══════════════════════════════════════════════════════════════
 
-Yo lo llamaría:
+IMPACTO EN TU CANDIDATURA:
 
-cobol-banking-batch-system
+Este proyecto te posiciona como:
+- Desarrollador COBOL con enfoque empresarial
+- Profesional que entiende arquitectura de sistemas
+- Alguien que puede trabajar en modernización legacy
+- Candidato que supera el típico "sé COBOL básico"
 
-Y el README podría empezar:
+Para una candidatura COBOL, este proyecto vale más que 5 CRUDs genéricos.
 
-COBOL Banking Batch System
+APROVECHA TU EXPERIENCIA PREVIA:
+Tu background en programación moderna te permite:
+- Crear una API que se integre con el sistema COBOL
+- Documentar como nadie más lo hace
+- Mostrar visión de arquitectura completa
+- Posicionarte como puente entre legacy y moderno
 
-A simulated enterprise banking batch-processing system built with COBOL and JCL, designed to demonstrate legacy/mainframe development practices including sequential file processing, validation, transaction handling, error management, reporting and batch job execution.
-
-Y pondría un diagrama de arquitectura, ejemplos de registros, JCL y capturas de los resultados.
-
-Si lo haces bien, este proyecto puede ser bastante más útil para una candidatura COBOL que 5 proyectos genéricos de CRUD. Además, puedes aprovechar tu experiencia previa en programación para añadir posteriormente DB2, CICS y una API moderna, construyendo progresivamente un proyecto que parezca una pequeña pieza de un sistema empresarial real
+═══════════════════════════════════════════════════════════════

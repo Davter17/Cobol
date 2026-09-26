@@ -1,0 +1,950 @@
+═══════════════════════════════════════════════════════════════
+  COBOL BANKING BATCH SYSTEM - GUIA DE DESARROLLO PASO A PASO
+═══════════════════════════════════════════════════════════════
+
+Esta guia es tu hoja de ruta. Cada paso construye sobre el anterior.
+No avances al siguiente hasta entender y completar el actual.
+
+Formato de cada paso:
+  QUE     - Lo que vas a construir
+  POR QUE - El proposito detras
+  CONCEPTO - Lo que aprendes/demuestras
+  ENTREGA - Resultado esperado
+  CHECK   - Como verificar que funciona
+
+Marca cada paso completado con una [X] al lado.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 0: PREPARACION DEL ENTORNO
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Tener todo listo para empezar a programar sin bloqueos.
+
+[ ] PASO 0.1 - Instalar GnuCOBOL
+    QUE:     Instalar el compilador open source de COBOL.
+    POR QUE: Necesitas un compilador para probar tu codigo.
+             GnuCOBOL es el estandar open source y compatible
+             con COBOL empresarial.
+    COMO:    Windows: descargar desde gnucobol.sourceforge.io
+             o usar WSL (Windows Subsystem for Linux)
+    ENTREGA: El comando "cobc --version" muestra informacion
+             del compilador.
+    CHECK:   Ejecutar en terminal: cobc --version
+
+[ ] PASO 0.2 - Crear estructura de carpetas
+    QUE:     Crear el arbol de directorios del proyecto.
+    POR QUE: Un proyecto empresarial necesita organizacion.
+             Los reclutadores miran como estructuras tu codigo.
+    ENTREGA: Esta estructura creada:
+
+             cobol-banking-batch-system/
+             ├── cobol/
+             ├── copybooks/
+             ├── jcl/
+             ├── data/
+             ├── output/
+             ├── scripts/
+             ├── docs/
+             ├── tests/
+             └── diagrams/
+
+    CHECK:   Ejecutar "ls" o "dir" y ver todas las carpetas.
+
+[ ] PASO 0.3 - Inicializar repositorio Git
+    QUE:     Crear un repo Git y primer commit.
+    POR QUE: Muestra metodologia de trabajo profesional.
+             Los commits frecuentes demuestran evolucion.
+    ENTREGA: Repo git inicializado con .gitignore y README.md
+             basico. Commit inicial hecho.
+    CHECK:   "git log" muestra al menos un commit.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 1: PRIMER PROGRAMA COBOL - "HELLO BANKING"
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Escribir, compilar y ejecutar tu primer programa COBOL.
+          Entender la estructura minima de un programa.
+
+[ ] PASO 1.1 - Entender la estructura de un programa COBOL
+    QUE:     Aprender las 4 divisiones fundamentales.
+    POR QUE: Todo programa COBOL tiene esta estructura.
+             Es el esqueleto que usaras siempre.
+
+    IDENTIFICATION DIVISION.  → Quien es el programa
+    ENVIRONMENT DIVISION.     → Donde se ejecuta (ficheros)
+    DATA DIVISION.            → Que datos usa (variables)
+    PROCEDURE DIVISION.       → Que hace (logica)
+
+    CONCEPTO: Divisiones de un programa COBOL.
+    ENTREGA: Explicar con tus palabras que hace cada division.
+    CHECK:   Puedes nombrar las 4 divisiones y su funcion.
+
+[ ] PASO 1.2 - Crear programa HELLO.cob
+    QUE:     Un programa minimo que muestre un mensaje
+             por pantalla.
+    POR QUE: Antes de procesar ficheros, necesitas saber
+             compilar y ejecutar algo basico.
+    CONCEPTO: Compilacion y ejecucion basica.
+
+    ENTREGA: Archivo cobol/HELLO.cob que al ejecutarlo
+             muestre: "HELLO BANKING SYSTEM"
+    CHECK:   Compilar: cobc -x -free cobol/HELLO.cob
+             Ejecutar: ./HELLO (o HELLO.exe en Windows)
+             Ver el mensaje en pantalla.
+
+[ ] PASO 1.3 - Experimentar con variables basicas
+    QUE:     Anadir variables (WORKING-STORAGE) y usar
+             DISPLAY para mostrarlas.
+    POR QUE: Las variables son la base de todo procesamiento.
+             Necesitas entender PIC antes de avanzar.
+    CONCEPTO: WORKING-STORAGE, PIC X, PIC 9, DISPLAY.
+
+    ENTREGA: Programa que declare y muestre:
+             - Nombre del banco (texto)
+             - Fecha de ejecucion (texto)
+             - Numero de version (numerico)
+    CHECK:   Compilar, ejecutar y ver los 3 valores en pantalla.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 2: ESTRUCTURAS DE DATOS (COPYBOOKS)
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Definir las estructuras de datos que usara todo el
+          sistema. Esto es como definir los "modelos" en
+          programacion moderna.
+
+[ ] PASO 2.1 - Crear BANK-COMMON.cpy
+    QUE:     Copybook con constantes globales del sistema.
+    POR QUE: En COBOL empresarial, las constantes se comparten
+             entre programas via COPYBOOKS. Evita "numeros
+             magicos" y facilita mantenimiento.
+    CONCEPTO: COPY statement, nivel 05, nivel 88, constantes.
+
+    ENTREGA: copybooks/BANK-COMMON.cpy con:
+             - Codigo de banco (ej: "0001")
+             - Version del sistema
+             - Valores max/min de importes
+             - Estados de cuenta (ACTIVA, BLOQUEADA, INACTIVA)
+    CHECK:   El archivo existe y tiene sintaxis correcta.
+
+[ ] PASO 2.2 - Crear BANK-ACCOUNT.cpy
+    QUE:     Estructura de un registro de cuenta bancaria.
+    POR QUE: Define como se guarda cada cuenta en el fichero.
+             Es el "contrato" de datos que todos los programas
+             deben respetar.
+    CONCEPTO: Estructuras de registro, PIC, REDEFINES.
+
+    ENTREGA: copybooks/BANK-ACCOUNT.cpy con:
+             - Numero de cuenta (6 digitos)
+             - DNI/NIF del titular (9 caracteres)
+             - Nombre del titular (30 caracteres)
+             - Saldo actual (con decimales)
+             - Estado de la cuenta (1 caracter: A/B/I)
+             - Fecha de apertura
+             - Limite diario
+
+             Total registro: longitud fija definida.
+    CHECK:   Puedes dibujar en papel como se ve un registro
+             de cuenta byte a byte.
+
+[ ] PASO 2.3 - Crear BANK-CLIENT.cpy
+    QUE:     Estructura de un registro de cliente.
+    POR QUE: Separa datos del cliente de datos de la cuenta.
+             Un cliente puede tener varias cuentas.
+    CONCEPTO: Relacion entre estructuras, claves primarias.
+
+    ENTREGA: copybooks/BANK-CLIENT.cpy con:
+             - DNI/NIF (clave)
+             - Nombre completo
+             - Direccion
+             - Telefono
+             - Email
+             - Fecha de alta
+    CHECK:   El archivo existe y es coherente con BANK-ACCOUNT.
+
+[ ] PASO 2.4 - Crear BANK-TRANSACTION.cpy
+    QUE:     Estructura de un registro de movimiento.
+    POR QUE: Define el formato de entrada del batch.
+             Cada linea del fichero MOVIMIENTOS.DAT seguira
+             esta estructura.
+    CONCEPTO: Estructuras de transaccion, tipos de operacion.
+
+    ENTREGA: copybooks/BANK-TRANSACTION.cpy con:
+             - ID de transaccion (10 digitos)
+             - Tipo operacion (T=transferencia, I=ingreso,
+               R=retirada, P=pago)
+             - Cuenta origen (6 digitos)
+             - Cuenta destino (6 digitos)
+             - Importe (con decimales)
+             - Fecha/hora
+             - Concepto (40 caracteres)
+    CHECK:   Puedes describir un ejemplo de registro completo.
+
+[ ] PASO 2.5 - Crear BANK-ERRORS.cpy
+    QUE:     Estructura de registro de error y codigos.
+    POR QUE: Centraliza todos los codigos de error del sistema.
+             Cualquier programa que necesite reportar un error
+             usara estos codigos estandar.
+    CONCEPTO: Nivel 88 (condiciones nombradas), COPY.
+
+    ENTREGA: copybooks/BANK-ERRORS.cpy con:
+             - Estructura de registro de error
+             - Codigos E001 a E010
+             - Nivel 88 para cada codigo
+    CHECK:   Puedes listar todos los codigos de error y
+             que significa cada uno.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 3: FICHEROS DE DATOS
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Crear los ficheros de datos de prueba que usara
+          el sistema. En COBOL empresarial, los datos vienen
+          en ficheros secuenciales, no en bases de datos
+          (al menos en la primera version).
+
+[ ] PASO 3.1 - Crear CLIENTES.DAT
+    QUE:     Fichero con 10-15 clientes de prueba.
+    POR QUE: Necesitas datos reales para probar el sistema.
+             Los registros deben cumplir la estructura definida
+             en BANK-CLIENT.cpy exactamente.
+    CONCEPTO: Ficheros secuenciales, longitud fija, formato.
+
+    ENTREGA: data/CLIENTES.DAT con 10-15 registros.
+             Cada registro debe tener la longitud exacta
+             definida en BANK-CLIENT.cpy.
+    CHECK:   Abrir el fichero y verificar que cada linea
+             tiene la misma longitud y el formato correcto.
+
+[ ] PASO 3.2 - Crear CUENTAS.DAT
+    QUE:     Fichero con 20-30 cuentas de prueba.
+    POR QUE: Son las cuentas que procesara el batch.
+             Incluir cuentas con distintos estados (activas,
+             bloqueadas, saldo 0, saldo alto) para probar
+             todos los escenarios.
+    CONCEPTO: Datos de prueba variados, edge cases.
+
+    ENTREGA: data/CUENTAS.DAT con 20-30 registros.
+             Incluir al menos:
+             - 3 cuentas con saldo alto (>10000)
+             - 3 cuentas con saldo bajo (<50)
+             - 2 cuentas bloqueadas
+             - 1 cuenta con saldo 0
+             - 2 cuentas con limite diario bajo
+    CHECK:   Verificar formato y que existan los casos
+             especiales para testing.
+
+[ ] PASO 3.3 - Crear MOVIMIENTOS.DAT
+    QUE:     Fichero con 50-100 movimientos de prueba.
+    POR QUE: Es la entrada principal del batch. Debe
+             incluir casos validos e invalidos para probar
+             todas las validaciones.
+    CONCEPTO: Datos de prueba con casos de error.
+
+    ENTREGA: data/MOVIMIENTOS.DAT con 50-100 registros.
+             Incluir al menos:
+             - 30 transferencias validas
+             - 5 ingresos validos
+             - 5 retiradas validas
+             - 5 con cuenta inexistente (E001)
+             - 5 con saldo insuficiente (E002)
+             - 3 con cuenta bloqueada (E003)
+             - 3 con importe invalido (E004)
+             - 2 duplicados (E005)
+    CHECK:   Contar registros y verificar que hay casos
+             para cada tipo de error.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 4: LECTURA DE FICHEROS
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Aprender a leer ficheros secuenciales en COBOL.
+          Este es el cor del procesamiento batch.
+
+[ ] PASO 4.1 - Programa que lea CUENTAS.DAT
+    QUE:     Un programa que abra CUENTAS.DAT, lea cada
+             registro y muestre el numero de cuenta y saldo.
+    POR QUE: La lectura secuencial es la operacion mas
+             basica e importante en COBOL batch. Todo el
+             procesamiento parte de aqui.
+    CONCEPTO: FILE SECTION, FD, OPEN INPUT, READ, AT END,
+              FILE STATUS, CLOSE.
+
+    ENTREGA: cobol/READACC.cob que:
+             - Abra CUENTAS.DAT
+             - Lea registro por registro
+             - Muestre numero de cuenta y saldo
+             - Cuente total de registros
+             - Maneje FILE STATUS
+             - Cierre el fichero al terminar
+    CHECK:   Compilar y ejecutar. Debe mostrar todas las
+             cuentas y el total al final.
+
+[ ] PASO 4.2 - Programa que lea MOVIMIENTOS.DAT
+    QUE:     Igual que el anterior pero con movimientos.
+    POR QUE: Practicas la misma tecnica con otra estructura.
+             La repeticion consolida el aprendizaje.
+    CONCEPTO: Misma tecnica, distintos datos.
+
+    ENTREGA: cobol/READMOV.cob que lea y muestre todos
+             los movimientos.
+    CHECK:   Compilar y ejecutar. Mostrar todos los
+             movimientos y total.
+
+[ ] PASO 4.3 - Contadores y acumuladores
+    QUE:     Mejorar READMOV.cob para calcular:
+             - Total de transferencias
+             - Total de ingresos
+             - Total de retiradas
+             - Importe total procesado
+    POR QUE: Los contadores y acumuladores son esenciales
+             en batch processing. El informe final los
+             necesitara.
+    CONCEPTO: ADD, contadores, acumuladores, PIC con decimales.
+
+    ENTREGA: Programa mejorado que muestre un resumen
+             al final con los totales.
+    CHECK:   Verificar que los totales son correctos
+             contando manualmente algunos registros.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 5: BUSQUEDA Y VALIDACION
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Dado un numero de cuenta, buscarla en CUENTAS.DAT
+          y validar sus datos. Esto es lo que hara el batch
+          para cada movimiento.
+
+[ ] PASO 5.1 - Buscar cuenta por numero
+    QUE:     Programa que reciba un numero de cuenta y
+             busque en CUENTAS.DAT si existe.
+    POR QUE: Antes de procesar un movimiento, hay que
+             verificar que la cuenta existe. Es la primera
+             validacion del batch.
+    CONCEPTO: Busqueda secuencial, comparacion de strings,
+              PERFORM hasta encontrar.
+
+    ENTREGA: cobol/SEARCHACC.cob que:
+             - Pida un numero de cuenta
+             - Busque en CUENTAS.DAT
+             - Muestre "ENCONTRADA" o "NO ENCONTRADA"
+             - Si existe, muestre sus datos
+    CHECK:   Probar con cuentas que existen y que no.
+
+[ ] PASO 5.2 - Validar estado de cuenta
+    QUE:     Anadir validacion de estado (activa/bloqueada).
+    POR QUE: Una cuenta puede existir pero estar bloqueada.
+             No se puede operar con ella.
+    CONCEPTO: Nivel 88, condiciones nombradas, IF/ELSE.
+
+    ENTREGA: Programa mejorado que informe:
+             - Cuenta no existe → E001
+             - Cuenta bloqueada → E003
+             - Cuenta inactiva  → E006
+             - Cuenta OK        → continuar
+    CHECK:   Probar con cuentas en distintos estados.
+
+[ ] PASO 5.3 - Validar saldo suficiente
+    QUE:     Anadir validacion de saldo para retiradas.
+    POR QUE: No se puede retirar mas dinero del disponible.
+             Es la validacion mas comun en banca.
+    CONCEPTO: Comparacion numerica, PIC con decimales,
+              arithmetic errors.
+
+    ENTREGA: Programa mejorado que:
+             - Reciba numero de cuenta e importe
+             - Verifique saldo suficiente
+             - Informe E002 si no hay saldo
+             - Informe OK si la operacion es valida
+    CHECK:   Probar con importes mayores y menores al saldo.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 6: ESCRITURA Y ACTUALIZACION DE FICHEROS
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Aprender a escribir nuevos ficheros y actualizar
+          registros existentes.
+
+[ ] PASO 6.1 - Escribir fichero ERRORS.DAT
+    QUE:     Programa que abra un fichero de salida y
+             escriba registros de error.
+    POR QUE: El batch genera un fichero de errores.
+             Necesitas saber escribir ficheros nuevos.
+    CONCEPTO: OPEN OUTPUT, WRITE, OPEN EXTEND.
+
+    ENTREGA: cobol/WRITERR.cob que:
+             - Abra ERRORS.DAT en modo OUTPUT
+             - Escriba 3-5 registros de error de prueba
+             - Cierre el fichero
+    CHECK:   Ejecutar y verificar que ERRORS.DAT se creo
+             con los registros correctos.
+
+[ ] PASO 6.2 - Actualizar saldos en CUENTAS.DAT
+    QUE:     Programa que lea una cuenta, modifique su
+             saldo y reescriba el registro.
+    POR QUE: Cuando se procesa un movimiento, hay que
+             actualizar el saldo de la cuenta. Esto requiere
+             OPEN I-O y REWRITE.
+    CONCEPTO: OPEN I-O, READ, REWRITE, actualizacion in-place.
+
+    ENTREGA: cobol/UPDSALDO.cob que:
+             - Reciba numero de cuenta e importe
+             - Busque la cuenta
+             - Actualice el saldo (suma o resta)
+             - Reescriba el registro
+    CHECK:   Ejecutar, verificar el saldo antes y despues
+             en CUENTAS.DAT.
+
+[ ] PASO 6.3 - Escribir fichero HISTORICO.DAT
+    QUE:     Programa que registre cada operacion en un
+             fichero de historico.
+    POR QUE: En banca, toda operacion queda registrada.
+             El historico es la trazabilidad del sistema.
+    CONCEPTO: OPEN EXTEND, WRITE, append.
+
+    ENTREGA: cobol/WRIHIST.cob que:
+             - Abra HISTORICO.DAT en modo EXTEND
+             - Reciba datos de una transaccion
+             - Anada un registro al historico
+    CHECK:   Ejecutar varias veces y verificar que se
+             anaden registros sin borrar los anteriores.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 7: PROGRAMA PRINCIPAL - BANKPROC
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Construir el programa principal que integra todo:
+          lee movimientos, valida, procesa, actualiza saldos,
+          genera errores y escribe el historico.
+
+[ ] PASO 7.1 - Estructura principal de BANKPROC
+    QUE:     Esqueleto del programa principal con el flujo
+             basico de procesamiento.
+    POR QUE: Necesitas un programa que orqueste todo.
+             Este es el "director de orquesta" del batch.
+    CONCEPTO: PERFORM, parrafos, secciones, flujo de control.
+
+    ENTREGA: cobol/BANKPROC.cob con:
+             - Inicializacion (apertura de ficheros)
+             - Bucle principal (leer movimiento)
+             - Llamadas a validacion
+             - Llamadas a procesamiento
+             - Llamadas a escritura de resultados
+             - Finalizacion (cierre de ficheros, resumen)
+    CHECK:   Compila sin errores. El flujo tiene sentido
+             aunque aun no procese nada.
+
+[ ] PASO 7.2 - Integrar lectura de movimientos
+    QUE:     Conectar la lectura de MOVIMIENTOS.DAT con
+             el bucle principal.
+    POR QUE: El batch debe procesar cada movimiento del
+             fichero de entrada.
+    CONCEPTO: Bucle PERFORM UNTIL, AT END, lectura secuencial.
+
+    ENTREGA: BANKPROC lee todos los movimientos y muestra
+             un contador al final.
+    CHECK:   Ejecutar y verificar que cuenta todos los
+             movimientos correctamente.
+
+[ ] PASO 7.3 - Integrar busqueda de cuentas
+    QUE:     Por cada movimiento, buscar cuenta origen
+             y destino en CUENTAS.DAT.
+    POR QUE: Antes de procesar, hay que verificar que
+             las cuentas existen.
+    CONCEPTO: Busqueda en fichero para cada transaccion.
+
+    ENTREGA: BANKPROC busca ambas cuentas por cada
+             movimiento e indica si existen.
+    CHECK:   Ejecutar y verificar que detecta las cuentas
+             inexistentes (E001).
+
+[ ] PASO 7.4 - Integrar todas las validaciones
+    QUE:     Anadir todas las validaciones:
+             - Cuenta existe
+             - Cuenta activa
+             - Saldo suficiente
+             - Importe valido
+             - Limite diario
+    POR QUE: El batch debe filtrar movimientos invalidos
+             antes de procesarlos.
+    CONCEPTO: Validacion en cascada, manejo de errores.
+
+    ENTREGA: BANKPROC valida cada movimiento y escribe
+             en ERRORS.DAT los que fallan.
+    CHECK:   Ejecutar y verificar que ERRORS.DAT contiene
+             los errores esperados.
+
+[ ] PASO 7.5 - Procesar movimientos validos
+    QUE:     Para movimientos validos:
+             - Actualizar saldo origen
+             - Actualizar saldo destino
+             - Calcular comision
+             - Registrar en HISTORICO.DAT
+    POR QUE: Este es el cor del negocio. Aqui es donde
+             el sistema "hace su trabajo".
+    CONCEPTO: Actualizacion de ficheros, calculos, escritura.
+
+    ENTREGA: BANKPROC procesa movimientos validos
+             correctamente. Los saldos se actualizan en
+             CUENTAS.DAT.
+    CHECK:   Comparar CUENTAS.DAT antes y despues.
+             Verificar que los saldos coinciden con lo
+             esperado.
+
+[ ] PASO 7.6 - Calcular comisiones
+    QUE:     Aplicar reglas de negocio para comisiones:
+             - Transferencia: 0.1% del importe (min 0.50)
+             - Retirada: 2.00 fija
+             - Ingreso: gratis
+             - Pago: 0.05% del importe
+    POR QUE: Las reglas de negocio son lo que diferencia
+             un sistema real de un ejercicio academico.
+    CONCEPTO: COMPUTE, IF/ELSE, tablas de reglas, nivel 88.
+
+    ENTREGA: Comisiones calculadas correctamente segun
+             el tipo de operacion.
+    CHECK:   Verificar manualmente 3-4 calculos de
+             comisiones y comparar con el resultado.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 8: GENERACION DE INFORMES
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Al finalizar el batch, generar un informe profesional
+          con todos los resultados del procesamiento.
+
+[ ] PASO 8.1 - Contadores del informe
+    QUE:     Anadir contadores para:
+             - Total movimientos procesados
+             - Aceptados / rechazados
+             - Total debitado / acreditado
+             - Comisiones generadas
+             - Cuentas actualizadas
+             - Errores por tipo (E001, E002, etc.)
+    POR QUE: El informe necesita datos. Estos contadores
+             se alimentan durante el procesamiento.
+    CONCEPTO: Contadores, acumuladores, tablas (OCCURS).
+
+    ENTREGA: Variables de conteo que se actualizan
+             correctamente durante el procesamiento.
+    CHECK:   Tras ejecutar, los contadores muestran
+             valores coherentes.
+
+[ ] PASO 8.2 - Generar REPORT.DAT
+    QUE:     Escribir el informe principal en un fichero
+             con formato profesional.
+    POR QUE: El informe es lo que ven los usuarios del
+             sistema. Debe ser claro y profesional.
+    CONCEPTO: WRITE con lineas formateadas, PIC con edicion
+              (Z,ZZZ,ZZ9.99), STRING, encabezados.
+
+    ENTREGA: output/REPORT.DAT con formato:
+             ========================================
+                   DAILY BANKING REPORT
+             ========================================
+             [contadores y metricas]
+             ========================================
+    CHECK:   Abrir REPORT.DAT y verificar que el formato
+             es correcto y los numeros tienen sentido.
+
+[ ] PASO 8.3 - Formato de numeros
+    QUE:     Usar PIC con edicion para formatear numeros:
+             - 1234567.89 → "1,234,567.89"
+             - 0.50       → "0.50" (no ".50")
+    POR QUE: Los informes financieros necesitan formato
+             profesional. Los ceros a la izquierda deben
+             mostrarse como espacios.
+    CONCEPTO: PIC Z,ZZZ,ZZ9.99, edicion de numeros.
+
+    ENTREGA: Los numeros en el informe tienen formato
+             financiero correcto.
+    CHECK:   Verificar que 1234.50 se muestra como
+             "1,234.50" y no como "0001234.50".
+
+[ ] PASO 8.4 - Generar AUDIT.DAT
+    QUE:     Fichero de auditoria con detalle de cada
+             operacion procesada (timestamp, cuenta, importe,
+             resultado).
+    POR QUE: La auditoria es obligatoria en sistemas
+             financieros. Permite reconstruir lo que paso.
+    CONCEPTO: FUNCTION CURRENT-DATE, FUNCTION CURRENT-TIME,
+              escritura de logs.
+
+    ENTREGA: output/AUDIT.DAT con un registro por cada
+             movimiento procesado.
+    CHECK:   El numero de registros en AUDIT.DAT coincide
+             con el total de movimientos procesados.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 9: JCL (JOB CONTROL LANGUAGE)
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Escribir los JCL que ejecutarian el batch en un
+          mainframe real. Aunque no tengas mainframe, mostrar
+          JCL en tu portafolio es un gran diferenciador.
+
+[ ] PASO 9.1 - Entender JCL basico
+    QUE:     Aprender la estructura de un JCL:
+             - Job card
+             - EXEC statement
+             - DD statements
+             - SYSIN/SYSOUT
+    POR QUE: JCL es el lenguaje que controla la ejecucion
+             en mainframe. Sin JCL, el programa COBOL no
+             se ejecuta en produccion.
+    CONCEPTO: JOB, EXEC, DD, DISP, DSN, DCB.
+
+    ENTREGA: Explicar con tus palabras que hace cada
+             parte de un JCL.
+    CHECK:   Puedes leer un JCL y entender que hace.
+
+[ ] PASO 9.2 - Crear BANKJOB.jcl
+    QUE:     JCL para ejecutar BANKPROC con todos los
+             ficheros de entrada y salida.
+    POR QUE: Es el JCL principal del sistema. Define como
+             se ejecuta el batch en produccion.
+    CONCEPTO: JCL completo, DD statements, DISP, catalogacion.
+
+    ENTREGA: jcl/BANKJOB.jcl con:
+             - Job card correcto
+             - EXEC PGM=BANKPROC
+             - DD para cada fichero de entrada
+             - DD para cada fichero de salida
+             - SYSOUT para el informe en pantalla
+    CHECK:   El JCL tiene sintaxis correcta y todas las
+             DD statements necesarias.
+
+[ ] PASO 9.3 - Crear SORTJOB.jcl
+    QUE:     JCL para ordenar movimientos antes de procesar.
+    POR QUE: En mainframe, a veces se ordenan los datos
+             antes del batch. Es una practica comun.
+    CONCEPTO: JCL con PGM=SORT, SYSIN, sort fields.
+
+    ENTREGA: jcl/SORTJOB.jcl que ordene MOVIMIENTOS.DAT
+             por numero de cuenta.
+    CHECK:   El JCL tiene sintaxis correcta.
+
+[ ] PASO 9.4 - Comentar el JCL
+    QUE:     Anadir comentarios explicativos al JCL.
+    POR QUE: Los reclutadores valoran que entiendas lo que
+             escribes, no solo que copies. Los comentarios
+             demuestran comprension.
+    CONCEPTO: Documentacion tecnica.
+
+    ENTREGA: JCL con comentarios que expliquen cada DD,
+             cada parametro DISP, y el proposito de cada step.
+    CHECK:   Alguien que no sepa JCL puede entender que
+             hace el job leyendo los comentarios.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 10: SCRIPTS DE AUTOMATIZACION
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Crear scripts para compilar, ejecutar y generar
+          datos de prueba. Muestra que sabes automatizar.
+
+[ ] PASO 10.1 - Script de compilacion
+    QUE:     scripts/compile.sh que compile todos los
+             programas COBOL del proyecto.
+    POR QUE: Automatiza la compilacion. Un reclutador puede
+             compilar tu proyecto con un solo comando.
+    CONCEPTO: Bash scripting, cobc, variables de entorno.
+
+    ENTREGA: Script que:
+             - Compila todos los .cob en cobol/
+             - Usa los copybooks de copybooks/
+             - Reporta exitos y errores
+             - Sale con codigo de error si algo falla
+    CHECK:   Ejecutar ./scripts/compile.sh y verificar
+             que todo compila.
+
+[ ] PASO 10.2 - Script de ejecucion
+    QUE:     scripts/run.sh que ejecute el batch completo.
+    POR QUE: Permite ejecutar el sistema facilmente.
+    CONCEPTO: Bash scripting, ejecucion de programas.
+
+    ENTREGA: Script que:
+             - Hace backup de CUENTAS.DAT (por si acaso)
+             - Ejecuta BANKPROC
+             - Muestra el informe en pantalla
+             - Indica donde estan los ficheros de salida
+    CHECK:   Ejecutar ./scripts/run.sh y ver el informe.
+
+[ ] PASO 10.3 - Script de generacion de datos
+    QUE:     scripts/generate-test-data.sh que genere
+             ficheros de prueba.
+    POR QUE: Permite a cualquiera generar datos de prueba
+             sin crearlos a mano. Es profesional.
+    CONCEPTO: Generacion de datos, scripting.
+
+    ENTREGA: Script que genera CLIENTES.DAT, CUENTAS.DAT
+             y MOVIMIENTOS.DAT con datos aleatorios pero
+             coherentes.
+    CHECK:   Borrar los .DAT, ejecutar el script, y
+             verificar que se regeneran correctamente.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 11: TESTING
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Documentar y ejecutar pruebas que demuestren que
+          el sistema funciona correctamente.
+
+[ ] PASO 11.1 - Definir casos de prueba
+    QUE:     tests/test-cases.md con casos de prueba
+             documentados.
+    POR QUE: Demuestra que piensas en calidad, no solo
+             en "que funcione".
+    CONCEPTO: Planificacion de pruebas, casos de prueba.
+
+    ENTREGA: Documento con al menos 15 casos de prueba:
+             - 5 casos validos (happy path)
+             - 5 casos de error (unhappy path)
+             - 5 casos edge (limites, valores extremos)
+             Cada caso: input, expected output, resultado.
+    CHECK:   El documento existe y es completo.
+
+[ ] PASO 11.2 - Ejecutar pruebas
+    QUE:     Ejecutar cada caso de prueba y documentar
+             resultados.
+    POR QUE: Las pruebas solo valen si se ejecutan y se
+             documentan los resultados.
+    CONCEPTO: Ejecucion de pruebas, documentacion.
+
+    ENTREGA: tests/test-results/ con capturas o logs de
+             cada prueba ejecutada.
+    CHECK:   Cada caso de prueba tiene resultado documentado
+             (PASS/FAIL).
+
+[ ] PASO 11.3 - Verificar integridad de datos
+    QUE:     Tras ejecutar el batch, verificar que:
+             - La suma de saldos antes = suma de saldos despues
+               (menos comisiones)
+             - No hay movimientos perdidos
+             - ERRORS.DAT tiene los errores esperados
+    POR QUE: En banca, la integridad de datos es critica.
+             Esta verificacion demuestra mentalidad empresarial.
+    CONCEPTO: Integridad de datos, reconciliacion.
+
+    ENTREGA: Script o documento que verifique la integridad.
+    CHECK:   Los numeros cuadran.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 12: DOCUMENTACION
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Crear documentacion profesional que haga tu proyecto
+          entendible y atractivo para reclutadores.
+
+[ ] PASO 12.1 - README.md profesional
+    QUE:     README.md completo con:
+             - Descripcion del proyecto
+             - Arquitectura
+             - Requisitos
+             - Quick start
+             - Ejemplo de output
+             - Screenshots
+    POR QUE: Es lo primero que ve un reclutador.
+             Un buen README marca la diferencia.
+    CONCEPTO: Documentacion tecnica, escritura tecnica.
+
+    ENTREGA: README.md siguiendo la plantilla del indications.txt
+    CHECK:   Alguien que no conozca el proyecto puede entender
+             que hace y como ejecutarlo leyendo el README.
+
+[ ] PASO 12.2 - Documentacion de record layouts
+    QUE:     docs/record-layouts.md con el formato exacto
+             de cada fichero (byte a byte).
+    POR QUE: En COBOL empresarial, los record layouts son
+             documentacion esencial. Los reclutadores COBOL
+             esperan ver esto.
+    CONCEPTO: Documentacion de estructuras de datos.
+
+    ENTREGA: Documento con tabla para cada fichero:
+             Campo          | Posicion | Longitud | Tipo
+             NUM-CUENTA     | 1-6      | 6        | 9(6)
+             ...
+    CHECK:   Las posiciones y longitudes son correctas
+             y coherentes con los COPYBOOKS.
+
+[ ] PASO 12.3 - Documentacion de arquitectura
+    QUE:     docs/architecture.md con diagrama del sistema.
+    POR QUE: Muestra vision de conjunto, no solo codigo.
+    CONCEPTO: Diagramas de arquitectura, documentacion.
+
+    ENTREGA: Diagrama (texto o imagen) que muestre:
+             - Ficheros de entrada
+             - Programas COBOL
+             - Ficheros de salida
+             - JCL
+             - Relacion entre componentes
+    CHECK:   El diagrama es claro y completo.
+
+[ ] PASO 12.4 - Documentacion de codigos de error
+    QUE:     docs/error-codes.md con todos los codigos
+             de error y su significado.
+    POR QUE: Es documentacion de referencia esencial
+             en cualquier sistema empresarial.
+    CONCEPTO: Documentacion de referencia.
+
+    ENTREGA: Tabla con: Codigo | Descripcion | Causa | Accion
+    CHECK:   Todos los codigos E001-E010 estan documentados.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 13: PUBLICACION Y PORTAFOLIO
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
+
+[ ] PASO 13.1 - Limpiar el repositorio
+    QUE:     Revisar todo el codigo, eliminar temporales,
+             verificar .gitignore.
+    POR QUE: Un repo sucio da mala imagen.
+    CONCEPTO: Limpieza de codigo, .gitignore.
+
+    ENTREGA: Repo limpio, sin ficheros temporales, con
+             .gitignore correcto.
+    CHECK:   "git status" no muestra ficheros basura.
+
+[ ] PASO 13.2 - Historial de commits limpio
+    QUE:     Revisar que los commits tienen mensajes claros
+             y la evolucion es logica.
+    POR QUE: Los reclutadores tecnicos miran el historial.
+    CONCEPTO: Git, mensajes de commit.
+
+    ENTREGA: Commits con mensajes descriptivos tipo:
+             "Add account validation logic"
+             "Implement commission calculation"
+             "Add JCL for batch execution"
+    CHECK:   "git log --oneline" muestra una historia clara.
+
+[ ] PASO 13.3 - Subir a GitHub
+    QUE:     Crear repo en GitHub y hacer push.
+    POR QUE: Tu proyecto debe ser accesible online.
+    CONCEPTO: GitHub, repositorios publicos.
+
+    ENTREGA: Repositorio publico en GitHub con todo el
+             codigo y documentacion.
+    CHECK:   La URL funciona y muestra el README.
+
+[ ] PASO 13.4 - Capturas de pantalla
+    QUE:     Hacer capturas de:
+             - Compilacion exitosa
+             - Ejecucion del batch
+             - Informe generado
+             - Fichero de errores
+             - Estructura del proyecto
+    POR QUE: Las capturas permiten a un reclutador ver
+             el resultado sin clonar el repo.
+    CONCEPTO: Documentacion visual.
+
+    ENTREGA: 4-5 capturas en diagrams/ o en el README.
+    CHECK:   Las capturas son claras y muestran el
+             funcionamiento del sistema.
+
+[ ] PASO 13.5 - Preparar para entrevistas
+    QUE:     Preparar un "elevator pitch" de 2 minutos
+             sobre el proyecto.
+    POR QUE: En una entrevista, debes poder explicar tu
+             proyecto de forma clara y concisa.
+    CONCEPTO: Comunicacion tecnica.
+
+    ENTREGA: Guion de 2 minutos que cubra:
+             - Que hace el sistema
+             - Tecnologias usadas
+             - Retos tecnicos superados
+             - Lo que aprendiste
+    CHECK:   Puedes explicarlo sin mirar notas.
+
+
+═══════════════════════════════════════════════════════════════
+FASE 14 (OPCIONAL): MODERNIZACION LEGACY
+═══════════════════════════════════════════════════════════════
+
+Objetivo: Anadir una capa moderna que se integre con el
+          sistema COBOL. Esto te diferencia enormemente.
+
+[ ] PASO 14.1 - API REST que lea los ficheros COBOL
+    QUE:     API en Python (FastAPI) o Java (Spring Boot)
+             que lea CUENTAS.DAT y MOVIMIENTOS.DAT.
+    POR QUE: Demuestra que puedes conectar sistemas legacy
+             con tecnologias modernas. Es exactamente lo que
+             buscan las empresas en transformacion digital.
+    CONCEPTO: APIs REST, lectura de ficheros COBOL desde
+              otro lenguaje, integracion.
+
+    ENTREGA: API con endpoints:
+             GET /api/accounts/{id}
+             GET /api/transactions
+             GET /api/report
+    CHECK:   La API devuelve datos correctos leidos
+             directamente de los ficheros COBOL.
+
+[ ] PASO 14.2 - Documentar la integracion
+    QUE:     docs/modernization.md explicando la arquitectura
+             hibrida.
+    POR QUE: La integracion legacy-moderno es tu valor
+             diferencial. Debe estar bien documentada.
+    CONCEPTO: Arquitectura hibrida, documentacion.
+
+    ENTREGA: Documento con:
+             - Diagrama de arquitectura
+             - Explicacion de como se conectan
+             - Casos de uso
+    CHECK:   El documento es claro y profesional.
+
+
+═══════════════════════════════════════════════════════════════
+RESUMEN DE PROGRESO
+═══════════════════════════════════════════════════════════════
+
+Fase 0:  Preparacion         [___/3]  pasos
+Fase 1:  Primer programa     [___/3]  pasos
+Fase 2:  Estructuras datos   [___/5]  pasos
+Fase 3:  Ficheros datos      [___/3]  pasos
+Fase 4:  Lectura ficheros    [___/3]  pasos
+Fase 5:  Busqueda y valid.   [___/3]  pasos
+Fase 6:  Escritura ficheros  [___/3]  pasos
+Fase 7:  Programa principal  [___/6]  pasos
+Fase 8:  Informes            [___/4]  pasos
+Fase 9:  JCL                 [___/4]  pasos
+Fase 10: Scripts             [___/3]  pasos
+Fase 11: Testing             [___/3]  pasos
+Fase 12: Documentacion       [___/4]  pasos
+Fase 13: Publicacion         [___/5]  pasos
+Fase 14: Modernizacion       [___/2]  pasos (opcional)
+                                ─────
+                         TOTAL: 54 pasos
+
+Cuando completes un paso, marca con [X] y actualiza el contador.
+
+═══════════════════════════════════════════════════════════════
+COMO USAR ESTA GUIA
+═══════════════════════════════════════════════════════════════
+
+1. Abre esta guia y el indications.txt juntos.
+2. Empieza por el Paso 0.1.
+3. Para cada paso, dime: "Vamos con el paso X.Y"
+4. Te explicare el concepto, te guiare escribiendo el codigo,
+   y tu lo escribiras y lo probaras.
+5. Cuando funcione, marcas [X] y pasamos al siguiente.
+6. Si algo no funciona, lo depuramos juntos antes de avanzar.
+
+REGLA DE ORO: No avances al siguiente paso hasta entender
+completamente el actual. La base debe ser solida.
+
+═══════════════════════════════════════════════════════════════
