@@ -52,7 +52,7 @@ Objetivo: Tener todo listo para empezar a programar sin bloqueos.
 
     CHECK:   Ejecutar "ls" o "dir" y ver todas las carpetas.
 
-[ ] PASO 0.3 - Inicializar repositorio Git
+[X] PASO 0.3 - Inicializar repositorio Git
     QUE:     Crear un repo Git y primer commit.
     POR QUE: Muestra metodologia de trabajo profesional.
              Los commits frecuentes demuestran evolucion.
@@ -68,7 +68,7 @@ FASE 1: PRIMER PROGRAMA COBOL - "HELLO BANKING"
 Objetivo: Escribir, compilar y ejecutar tu primer programa COBOL.
           Entender la estructura minima de un programa.
 
-[ ] PASO 1.1 - Entender la estructura de un programa COBOL
+[X] PASO 1.1 - Entender la estructura de un programa COBOL
     QUE:     Aprender las 4 divisiones fundamentales.
     POR QUE: Todo programa COBOL tiene esta estructura.
              Es el esqueleto que usaras siempre.
@@ -82,7 +82,7 @@ Objetivo: Escribir, compilar y ejecutar tu primer programa COBOL.
     ENTREGA: Explicar con tus palabras que hace cada division.
     CHECK:   Puedes nombrar las 4 divisiones y su funcion.
 
-[ ] PASO 1.2 - Crear programa HELLO.cob
+[X] PASO 1.2 - Crear programa HELLO.cob
     QUE:     Un programa minimo que muestre un mensaje
              por pantalla.
     POR QUE: Antes de procesar ficheros, necesitas saber
@@ -95,7 +95,7 @@ Objetivo: Escribir, compilar y ejecutar tu primer programa COBOL.
              Ejecutar: ./HELLO (o HELLO.exe en Windows)
              Ver el mensaje en pantalla.
 
-[ ] PASO 1.3 - Experimentar con variables basicas
+[X] PASO 1.3 - Experimentar con variables basicas
     QUE:     Anadir variables (WORKING-STORAGE) y usar
              DISPLAY para mostrarlas.
     POR QUE: Las variables son la base de todo procesamiento.
@@ -914,7 +914,7 @@ RESUMEN DE PROGRESO
 ═══════════════════════════════════════════════════════════════
 
 Fase 0:  Preparacion         [2/3]  pasos
-Fase 1:  Primer programa     [___/3]  pasos
+Fase 1:  Primer programa     [3/3]  pasos
 Fase 2:  Estructuras datos   [___/5]  pasos
 Fase 3:  Ficheros datos      [___/3]  pasos
 Fase 4:  Lectura ficheros    [___/3]  pasos
