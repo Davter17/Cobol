@@ -21,24 +21,25 @@ FASE 0: PREPARACION DEL ENTORNO
 
 Objetivo: Tener todo listo para empezar a programar sin bloqueos.
 
-[ ] PASO 0.1 - Instalar GnuCOBOL
-    QUE:     Instalar el compilador open source de COBOL.
-    POR QUE: Necesitas un compilador para probar tu codigo.
-             GnuCOBOL es el estandar open source y compatible
-             con COBOL empresarial.
-    COMO:    Windows: descargar desde gnucobol.sourceforge.io
-             o usar WSL (Windows Subsystem for Linux)
-    ENTREGA: El comando "cobc --version" muestra informacion
-             del compilador.
-    CHECK:   Ejecutar en terminal: cobc --version
+[X] PASO 0.1 - Instalar GnuCOBOL en WSL
+    QUE:     Instalar el compilador open source de COBOL
+             dentro de WSL (Windows Subsystem for Linux).
+    POR QUE: Necesitas un compilador para poder desarrollar,
+             compilar y probar tu código COBOL
+    ENTREGA: Abrir WSL (Ubuntu) y ejecutar:
+                sudo apt update
+                sudo apt install gnucobol4
+    CHECK:   Ejecutar dentro de WSL:
+                cobc --version
+             Debe aparecer algo similar a:
+                cobc (GnuCOBOL) 3.x.x
 
-[ ] PASO 0.2 - Crear estructura de carpetas
+[X] PASO 0.2 - Crear estructura de carpetas
     QUE:     Crear el arbol de directorios del proyecto.
     POR QUE: Un proyecto empresarial necesita organizacion.
              Los reclutadores miran como estructuras tu codigo.
-    ENTREGA: Esta estructura creada:
+    ENTREGA: Esta estructura creada en la raiz del proyecto:
 
-             cobol-banking-batch-system/
              ├── cobol/
              ├── copybooks/
              ├── jcl/
@@ -912,7 +913,7 @@ Objetivo: Anadir una capa moderna que se integre con el
 RESUMEN DE PROGRESO
 ═══════════════════════════════════════════════════════════════
 
-Fase 0:  Preparacion         [___/3]  pasos
+Fase 0:  Preparacion         [2/3]  pasos
 Fase 1:  Primer programa     [___/3]  pasos
 Fase 2:  Estructuras datos   [___/5]  pasos
 Fase 3:  Ficheros datos      [___/3]  pasos
