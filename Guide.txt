@@ -26,6 +26,7 @@ Objetivo: Tener todo listo para empezar a programar sin bloqueos.
              dentro de WSL (Windows Subsystem for Linux).
     POR QUE: Necesitas un compilador para poder desarrollar,
              compilar y probar tu código COBOL
+
     ENTREGA: Abrir WSL (Ubuntu) y ejecutar:
                 sudo apt update
                 sudo apt install gnucobol4
@@ -38,8 +39,8 @@ Objetivo: Tener todo listo para empezar a programar sin bloqueos.
     QUE:     Crear el arbol de directorios del proyecto.
     POR QUE: Un proyecto empresarial necesita organizacion.
              Los reclutadores miran como estructuras tu codigo.
+    
     ENTREGA: Esta estructura creada en la raiz del proyecto:
-
              ├── cobol/
              ├── copybooks/
              ├── jcl/
@@ -49,13 +50,13 @@ Objetivo: Tener todo listo para empezar a programar sin bloqueos.
              ├── docs/
              ├── tests/
              └── diagrams/
-
     CHECK:   Ejecutar "ls" o "dir" y ver todas las carpetas.
 
 [X] PASO 0.3 - Inicializar repositorio Git
     QUE:     Crear un repo Git y primer commit.
     POR QUE: Muestra metodologia de trabajo profesional.
              Los commits frecuentes demuestran evolucion.
+    
     ENTREGA: Repo git inicializado con .gitignore y README.md
              basico. Commit inicial hecho.
     CHECK:   "git log" muestra al menos un commit.
@@ -73,10 +74,10 @@ Objetivo: Escribir, compilar y ejecutar tu primer programa COBOL.
     POR QUE: Todo programa COBOL tiene esta estructura.
              Es el esqueleto que usaras siempre.
 
-    IDENTIFICATION DIVISION.  → Quien es el programa
-    ENVIRONMENT DIVISION.     → Donde se ejecuta (ficheros)
-    DATA DIVISION.            → Que datos usa (variables)
-    PROCEDURE DIVISION.       → Que hace (logica)
+            IDENTIFICATION DIVISION.  → Quien es el programa
+            ENVIRONMENT DIVISION.     → Donde se ejecuta (ficheros)
+            DATA DIVISION.            → Que datos usa (variables)
+            PROCEDURE DIVISION.       → Que hace (logica)
 
     CONCEPTO: Divisiones de un programa COBOL.
     ENTREGA: Explicar con tus palabras que hace cada division.
@@ -117,7 +118,7 @@ Objetivo: Definir las estructuras de datos que usara todo el
           sistema. Esto es como definir los "modelos" en
           programacion moderna.
 
-[ ] PASO 2.1 - Crear BANK-COMMON.cpy
+[X] PASO 2.1 - Crear BANK-COMMON.cpy
     QUE:     Copybook con constantes globales del sistema.
     POR QUE: En COBOL empresarial, las constantes se comparten
              entre programas via COPYBOOKS. Evita "numeros
@@ -131,7 +132,7 @@ Objetivo: Definir las estructuras de datos que usara todo el
              - Estados de cuenta (ACTIVA, BLOQUEADA, INACTIVA)
     CHECK:   El archivo existe y tiene sintaxis correcta.
 
-[ ] PASO 2.2 - Crear BANK-ACCOUNT.cpy
+[X] PASO 2.2 - Crear BANK-ACCOUNT.cpy
     QUE:     Estructura de un registro de cuenta bancaria.
     POR QUE: Define como se guarda cada cuenta en el fichero.
              Es el "contrato" de datos que todos los programas
@@ -151,7 +152,7 @@ Objetivo: Definir las estructuras de datos que usara todo el
     CHECK:   Puedes dibujar en papel como se ve un registro
              de cuenta byte a byte.
 
-[ ] PASO 2.3 - Crear BANK-CLIENT.cpy
+[X] PASO 2.3 - Crear BANK-CLIENT.cpy
     QUE:     Estructura de un registro de cliente.
     POR QUE: Separa datos del cliente de datos de la cuenta.
              Un cliente puede tener varias cuentas.
@@ -166,7 +167,7 @@ Objetivo: Definir las estructuras de datos que usara todo el
              - Fecha de alta
     CHECK:   El archivo existe y es coherente con BANK-ACCOUNT.
 
-[ ] PASO 2.4 - Crear BANK-TRANSACTION.cpy
+[X] PASO 2.4 - Crear BANK-TRANSACTION.cpy
     QUE:     Estructura de un registro de movimiento.
     POR QUE: Define el formato de entrada del batch.
              Cada linea del fichero MOVIMIENTOS.DAT seguira
@@ -184,7 +185,7 @@ Objetivo: Definir las estructuras de datos que usara todo el
              - Concepto (40 caracteres)
     CHECK:   Puedes describir un ejemplo de registro completo.
 
-[ ] PASO 2.5 - Crear BANK-ERRORS.cpy
+[X] PASO 2.5 - Crear BANK-ERRORS.cpy
     QUE:     Estructura de registro de error y codigos.
     POR QUE: Centraliza todos los codigos de error del sistema.
              Cualquier programa que necesite reportar un error
@@ -915,7 +916,7 @@ RESUMEN DE PROGRESO
 
 Fase 0:  Preparacion         [2/3]  pasos
 Fase 1:  Primer programa     [3/3]  pasos
-Fase 2:  Estructuras datos   [___/5]  pasos
+Fase 2:  Estructuras datos   [5/5]  pasos
 Fase 3:  Ficheros datos      [___/3]  pasos
 Fase 4:  Lectura ficheros    [___/3]  pasos
 Fase 5:  Busqueda y valid.   [___/3]  pasos

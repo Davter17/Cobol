@@ -1,0 +1,2 @@
+cobc -x -free cobol/EXAMPLE-1.cob
+cobc -x -free -I copybooks cobol/TEST-COMMON.cob
