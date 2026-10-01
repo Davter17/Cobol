@@ -209,7 +209,7 @@ Objetivo: Crear los ficheros de datos de prueba que usara
           en ficheros secuenciales, no en bases de datos
           (al menos en la primera version).
 
-[ ] PASO 3.1 - Crear CLIENTES.DAT
+[X] PASO 3.1 - Crear CLIENTES.DAT
     QUE:     Fichero con 10-15 clientes de prueba.
     POR QUE: Necesitas datos reales para probar el sistema.
              Los registros deben cumplir la estructura definida
@@ -222,7 +222,7 @@ Objetivo: Crear los ficheros de datos de prueba que usara
     CHECK:   Abrir el fichero y verificar que cada linea
              tiene la misma longitud y el formato correcto.
 
-[ ] PASO 3.2 - Crear CUENTAS.DAT
+[X] PASO 3.2 - Crear CUENTAS.DAT
     QUE:     Fichero con 20-30 cuentas de prueba.
     POR QUE: Son las cuentas que procesara el batch.
              Incluir cuentas con distintos estados (activas,
@@ -240,7 +240,7 @@ Objetivo: Crear los ficheros de datos de prueba que usara
     CHECK:   Verificar formato y que existan los casos
              especiales para testing.
 
-[ ] PASO 3.3 - Crear MOVIMIENTOS.DAT
+[X] PASO 3.3 - Crear MOVIMIENTOS.DAT
     QUE:     Fichero con 50-100 movimientos de prueba.
     POR QUE: Es la entrada principal del batch. Debe
              incluir casos validos e invalidos para probar
@@ -917,7 +917,7 @@ RESUMEN DE PROGRESO
 Fase 0:  Preparacion         [2/3]  pasos
 Fase 1:  Primer programa     [3/3]  pasos
 Fase 2:  Estructuras datos   [5/5]  pasos
-Fase 3:  Ficheros datos      [___/3]  pasos
+Fase 3:  Ficheros datos      [3/3]  pasos
 Fase 4:  Lectura ficheros    [___/3]  pasos
 Fase 5:  Busqueda y valid.   [___/3]  pasos
 Fase 6:  Escritura ficheros  [___/3]  pasos
