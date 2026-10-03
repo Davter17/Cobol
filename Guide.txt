@@ -374,7 +374,7 @@ FASE 6: ESCRITURA Y ACTUALIZACION DE FICHEROS
 Objetivo: Aprender a escribir nuevos ficheros y actualizar
           registros existentes.
 
-[ ] PASO 6.1 - Escribir fichero ERRORS.DAT
+[X] PASO 6.1 - Escribir fichero ERRORS.DAT
     QUE:     Programa que abra un fichero de salida y
              escriba registros de error.
     POR QUE: El batch genera un fichero de errores.
@@ -388,7 +388,7 @@ Objetivo: Aprender a escribir nuevos ficheros y actualizar
     CHECK:   Ejecutar y verificar que ERRORS.DAT se creo
              con los registros correctos.
 
-[ ] PASO 6.2 - Actualizar saldos en CUENTAS.DAT
+[X] PASO 6.2 - Actualizar saldos en CUENTAS.DAT
     QUE:     Programa que lea una cuenta, modifique su
              saldo y reescriba el registro.
     POR QUE: Cuando se procesa un movimiento, hay que
@@ -404,7 +404,7 @@ Objetivo: Aprender a escribir nuevos ficheros y actualizar
     CHECK:   Ejecutar, verificar el saldo antes y despues
              en CUENTAS.DAT.
 
-[ ] PASO 6.3 - Escribir fichero HISTORICO.DAT
+[X] PASO 6.3 - Escribir fichero HISTORICO.DAT
     QUE:     Programa que registre cada operacion en un
              fichero de historico.
     POR QUE: En banca, toda operacion queda registrada.
@@ -920,7 +920,7 @@ Fase 2:  Estructuras datos   [5/5]  pasos
 Fase 3:  Ficheros datos      [3/3]  pasos
 Fase 4:  Lectura ficheros    [3/3]  pasos
 Fase 5:  Busqueda y valid.   [3/3]  pasos
-Fase 6:  Escritura ficheros  [___/3]  pasos
+Fase 6:  Escritura ficheros  [3/3]  pasos
 Fase 7:  Programa principal  [___/6]  pasos
 Fase 8:  Informes            [___/4]  pasos
 Fase 9:  JCL                 [___/4]  pasos
