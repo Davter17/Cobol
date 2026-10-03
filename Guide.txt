@@ -323,47 +323,47 @@ Objetivo: Dado un numero de cuenta, buscarla en CUENTAS.DAT
           y validar sus datos. Esto es lo que hara el batch
           para cada movimiento.
 
-[ ] PASO 5.1 - Buscar cuenta por numero
+[X] PASO 5.1 - Buscar cuenta por numero
     QUE:     Programa que reciba un numero de cuenta y
-             busque en CUENTAS.DAT si existe.
+              busque en CUENTAS.DAT si existe.
     POR QUE: Antes de procesar un movimiento, hay que
-             verificar que la cuenta existe. Es la primera
-             validacion del batch.
+              verificar que la cuenta existe. Es la primera
+              validacion del batch.
     CONCEPTO: Busqueda secuencial, comparacion de strings,
-              PERFORM hasta encontrar.
+               PERFORM hasta encontrar.
 
     ENTREGA: cobol/SEARCHACC.cob que:
-             - Pida un numero de cuenta
-             - Busque en CUENTAS.DAT
-             - Muestre "ENCONTRADA" o "NO ENCONTRADA"
-             - Si existe, muestre sus datos
+              - Pida un numero de cuenta
+              - Busque en CUENTAS.DAT
+              - Muestre "ENCONTRADA" o "NO ENCONTRADA"
+              - Si existe, muestre sus datos
     CHECK:   Probar con cuentas que existen y que no.
 
-[ ] PASO 5.2 - Validar estado de cuenta
+[X] PASO 5.2 - Validar estado de cuenta
     QUE:     Anadir validacion de estado (activa/bloqueada).
     POR QUE: Una cuenta puede existir pero estar bloqueada.
-             No se puede operar con ella.
+              No se puede operar con ella.
     CONCEPTO: Nivel 88, condiciones nombradas, IF/ELSE.
 
     ENTREGA: Programa mejorado que informe:
-             - Cuenta no existe → E001
-             - Cuenta bloqueada → E003
-             - Cuenta inactiva  → E006
-             - Cuenta OK        → continuar
+              - Cuenta no existe → E001
+              - Cuenta bloqueada → E003
+              - Cuenta inactiva  → E006
+              - Cuenta OK        → continuar
     CHECK:   Probar con cuentas en distintos estados.
 
-[ ] PASO 5.3 - Validar saldo suficiente
+[X] PASO 5.3 - Validar saldo suficiente
     QUE:     Anadir validacion de saldo para retiradas.
     POR QUE: No se puede retirar mas dinero del disponible.
-             Es la validacion mas comun en banca.
+              Es la validacion mas comun en banca.
     CONCEPTO: Comparacion numerica, PIC con decimales,
-              arithmetic errors.
+               arithmetic errors.
 
     ENTREGA: Programa mejorado que:
-             - Reciba numero de cuenta e importe
-             - Verifique saldo suficiente
-             - Informe E002 si no hay saldo
-             - Informe OK si la operacion es valida
+              - Reciba numero de cuenta e importe
+              - Verifique saldo suficiente
+              - Informe E002 si no hay saldo
+              - Informe OK si la operacion es valida
     CHECK:   Probar con importes mayores y menores al saldo.
 
 
@@ -919,7 +919,7 @@ Fase 1:  Primer programa     [3/3]  pasos
 Fase 2:  Estructuras datos   [5/5]  pasos
 Fase 3:  Ficheros datos      [3/3]  pasos
 Fase 4:  Lectura ficheros    [3/3]  pasos
-Fase 5:  Busqueda y valid.   [___/3]  pasos
+Fase 5:  Busqueda y valid.   [3/3]  pasos
 Fase 6:  Escritura ficheros  [___/3]  pasos
 Fase 7:  Programa principal  [___/6]  pasos
 Fase 8:  Informes            [___/4]  pasos
