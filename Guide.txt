@@ -268,7 +268,7 @@ FASE 4: LECTURA DE FICHEROS
 Objetivo: Aprender a leer ficheros secuenciales en COBOL.
           Este es el cor del procesamiento batch.
 
-[ ] PASO 4.1 - Programa que lea CUENTAS.DAT
+[X] PASO 4.1 - Programa que lea CUENTAS.DAT
     QUE:     Un programa que abra CUENTAS.DAT, lea cada
              registro y muestre el numero de cuenta y saldo.
     POR QUE: La lectura secuencial es la operacion mas
@@ -287,16 +287,16 @@ Objetivo: Aprender a leer ficheros secuenciales en COBOL.
     CHECK:   Compilar y ejecutar. Debe mostrar todas las
              cuentas y el total al final.
 
-[ ] PASO 4.2 - Programa que lea MOVIMIENTOS.DAT
+[X] PASO 4.2 - Programa que lea MOVIMIENTOS.DAT
     QUE:     Igual que el anterior pero con movimientos.
     POR QUE: Practicas la misma tecnica con otra estructura.
-             La repeticion consolida el aprendizaje.
+              La repeticion consolida el aprendizaje.
     CONCEPTO: Misma tecnica, distintos datos.
 
     ENTREGA: cobol/READMOV.cob que lea y muestre todos
-             los movimientos.
+              los movimientos.
     CHECK:   Compilar y ejecutar. Mostrar todos los
-             movimientos y total.
+              movimientos y total.
 
 [ ] PASO 4.3 - Contadores y acumuladores
     QUE:     Mejorar READMOV.cob para calcular:
@@ -918,7 +918,7 @@ Fase 0:  Preparacion         [2/3]  pasos
 Fase 1:  Primer programa     [3/3]  pasos
 Fase 2:  Estructuras datos   [5/5]  pasos
 Fase 3:  Ficheros datos      [3/3]  pasos
-Fase 4:  Lectura ficheros    [___/3]  pasos
+Fase 4:  Lectura ficheros    [2/3]  pasos
 Fase 5:  Busqueda y valid.   [___/3]  pasos
 Fase 6:  Escritura ficheros  [___/3]  pasos
 Fase 7:  Programa principal  [___/6]  pasos

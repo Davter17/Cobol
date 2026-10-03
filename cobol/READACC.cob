@@ -1,0 +1,84 @@
+IDENTIFICATION DIVISION.
+PROGRAM-ID. READACC.
+AUTHOR. MARIO PICO.
+DATE-WRITTEN. 2026-03-01.
+
+*>================================================*
+*> Programa que lee CUENTAS.DAT y muestra         *
+*> numero de cuenta y saldo de cada registro      *
+*>================================================*
+
+ENVIRONMENT DIVISION.
+INPUT-OUTPUT SECTION.
+FILE-CONTROL.
+    SELECT ACCOUNTS-FILE ASSIGN TO 'data/CUENTAS.DAT'
+        ORGANIZATION IS LINE SEQUENTIAL
+        FILE STATUS IS WS-FILE-STATUS.
+
+DATA DIVISION.
+FILE SECTION.
+FD ACCOUNTS-FILE.
+01 WS-ACCOUNT-RECORD.
+    05 WS-ACCOUNT-NUMBER       PIC 9(6).
+    05 WS-ACCOUNT-DNI          PIC X(9).
+    05 WS-ACCOUNT-NAME         PIC X(30).
+    05 WS-ACCOUNT-BALANCE      PIC S9(10)V99.
+    05 WS-ACCOUNT-STATUS       PIC X(1).
+    05 WS-ACCOUNT-OPEN-DATE    PIC 9(8).
+    05 WS-ACCOUNT-DAILY-LIMIT  PIC 9(10)V99.
+
+WORKING-STORAGE SECTION.
+01 WS-FILE-STATUS          PIC XX.
+01 WS-EOF-FLAG             PIC 9 VALUE 0.
+    88 WS-EOF              VALUE 1.
+01 WS-ACCOUNT-COUNT        PIC 9(4) VALUE 0.
+01 WS-DISPLAY-BALANCE      PIC ZZZ,ZZZ,ZZ9.99.
+01 WS-DISPLAY-LIMIT        PIC ZZZ,ZZZ,ZZ9.99.
+
+PROCEDURE DIVISION.
+MAIN-PROGRAM.
+    PERFORM OPEN-FILES
+    PERFORM READ-ACCOUNTS
+    PERFORM CLOSE-FILES
+    PERFORM SHOW-SUMMARY
+    STOP RUN.
+
+OPEN-FILES.
+    OPEN INPUT ACCOUNTS-FILE
+    IF WS-FILE-STATUS NOT = "00"
+        DISPLAY "ERROR OPENING FILE: " WS-FILE-STATUS
+        STOP RUN
+    END-IF.
+
+READ-ACCOUNTS.
+    DISPLAY "========================================"
+    DISPLAY "       LISTADO DE CUENTAS BANCARIAS"
+    DISPLAY "========================================"
+    DISPLAY " "
+    DISPLAY "CUENTA    TITULAR                         SALDO"
+    DISPLAY "--------  ------------------------------  ----------------"
+    
+    PERFORM UNTIL WS-EOF
+        READ ACCOUNTS-FILE
+            AT END
+                SET WS-EOF TO TRUE
+            NOT AT END
+                ADD 1 TO WS-ACCOUNT-COUNT
+                PERFORM DISPLAY-ACCOUNT
+        END-READ
+    END-PERFORM.
+
+DISPLAY-ACCOUNT.
+    MOVE WS-ACCOUNT-BALANCE TO WS-DISPLAY-BALANCE
+    DISPLAY WS-ACCOUNT-NUMBER "  " 
+            WS-ACCOUNT-NAME "  "
+            WS-DISPLAY-BALANCE " EUR".
+
+CLOSE-FILES.
+    CLOSE ACCOUNTS-FILE.
+
+SHOW-SUMMARY.
+    DISPLAY " "
+    DISPLAY "========================================"
+    DISPLAY "TOTAL DE CUENTAS: " WS-ACCOUNT-COUNT
+    DISPLAY "========================================".
