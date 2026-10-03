@@ -298,12 +298,12 @@ Objetivo: Aprender a leer ficheros secuenciales en COBOL.
     CHECK:   Compilar y ejecutar. Mostrar todos los
               movimientos y total.
 
-[ ] PASO 4.3 - Contadores y acumuladores
+[X] PASO 4.3 - Contadores y acumuladores
     QUE:     Mejorar READMOV.cob para calcular:
-             - Total de transferencias
-             - Total de ingresos
-             - Total de retiradas
-             - Importe total procesado
+              - Total de transferencias
+              - Total de ingresos
+              - Total de retiradas
+              - Importe total procesado
     POR QUE: Los contadores y acumuladores son esenciales
              en batch processing. El informe final los
              necesitara.
@@ -918,7 +918,7 @@ Fase 0:  Preparacion         [2/3]  pasos
 Fase 1:  Primer programa     [3/3]  pasos
 Fase 2:  Estructuras datos   [5/5]  pasos
 Fase 3:  Ficheros datos      [3/3]  pasos
-Fase 4:  Lectura ficheros    [2/3]  pasos
+Fase 4:  Lectura ficheros    [3/3]  pasos
 Fase 5:  Busqueda y valid.   [___/3]  pasos
 Fase 6:  Escritura ficheros  [___/3]  pasos
 Fase 7:  Programa principal  [___/6]  pasos
