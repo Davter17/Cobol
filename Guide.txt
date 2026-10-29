@@ -524,7 +524,7 @@ FASE 8: GENERACION DE INFORMES
 Objetivo: Al finalizar el batch, generar un informe profesional
           con todos los resultados del procesamiento.
 
-[ ] PASO 8.1 - Contadores del informe
+[X] PASO 8.1 - Contadores del informe
     QUE:     Anadir contadores para:
              - Total movimientos procesados
              - Aceptados / rechazados
@@ -541,7 +541,7 @@ Objetivo: Al finalizar el batch, generar un informe profesional
     CHECK:   Tras ejecutar, los contadores muestran
              valores coherentes.
 
-[ ] PASO 8.2 - Generar REPORT.DAT
+[X] PASO 8.2 - Generar REPORT.DAT
     QUE:     Escribir el informe principal en un fichero
              con formato profesional.
     POR QUE: El informe es lo que ven los usuarios del
@@ -558,7 +558,7 @@ Objetivo: Al finalizar el batch, generar un informe profesional
     CHECK:   Abrir REPORT.DAT y verificar que el formato
              es correcto y los numeros tienen sentido.
 
-[ ] PASO 8.3 - Formato de numeros
+[X] PASO 8.3 - Formato de numeros
     QUE:     Usar PIC con edicion para formatear numeros:
              - 1234567.89 → "1,234,567.89"
              - 0.50       → "0.50" (no ".50")
@@ -572,7 +572,7 @@ Objetivo: Al finalizar el batch, generar un informe profesional
     CHECK:   Verificar que 1234.50 se muestra como
              "1,234.50" y no como "0001234.50".
 
-[ ] PASO 8.4 - Generar AUDIT.DAT
+[X] PASO 8.4 - Generar AUDIT.DAT
     QUE:     Fichero de auditoria con detalle de cada
              operacion procesada (timestamp, cuenta, importe,
              resultado).
@@ -922,7 +922,7 @@ Fase 4:  Lectura ficheros    [3/3]  pasos
 Fase 5:  Busqueda y valid.   [3/3]  pasos
 Fase 6:  Escritura ficheros  [3/3]  pasos
 Fase 7:  Programa principal  [6/6]  pasos
-Fase 8:  Informes            [___/4]  pasos
+Fase 8:  Informes            [4/4]  pasos
 Fase 9:  JCL                 [___/4]  pasos
 Fase 10: Scripts             [___/3]  pasos
 Fase 11: Testing             [___/3]  pasos
