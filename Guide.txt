@@ -427,7 +427,7 @@ Objetivo: Construir el programa principal que integra todo:
           lee movimientos, valida, procesa, actualiza saldos,
           genera errores y escribe el historico.
 
-[ ] PASO 7.1 - Estructura principal de BANKPROC
+[X] PASO 7.1 - Estructura principal de BANKPROC
     QUE:     Esqueleto del programa principal con el flujo
              basico de procesamiento.
     POR QUE: Necesitas un programa que orqueste todo.
@@ -444,7 +444,7 @@ Objetivo: Construir el programa principal que integra todo:
     CHECK:   Compila sin errores. El flujo tiene sentido
              aunque aun no procese nada.
 
-[ ] PASO 7.2 - Integrar lectura de movimientos
+[X] PASO 7.2 - Integrar lectura de movimientos
     QUE:     Conectar la lectura de MOVIMIENTOS.DAT con
              el bucle principal.
     POR QUE: El batch debe procesar cada movimiento del
@@ -456,7 +456,7 @@ Objetivo: Construir el programa principal que integra todo:
     CHECK:   Ejecutar y verificar que cuenta todos los
              movimientos correctamente.
 
-[ ] PASO 7.3 - Integrar busqueda de cuentas
+[X] PASO 7.3 - Integrar busqueda de cuentas
     QUE:     Por cada movimiento, buscar cuenta origen
              y destino en CUENTAS.DAT.
     POR QUE: Antes de procesar, hay que verificar que
@@ -468,7 +468,7 @@ Objetivo: Construir el programa principal que integra todo:
     CHECK:   Ejecutar y verificar que detecta las cuentas
              inexistentes (E001).
 
-[ ] PASO 7.4 - Integrar todas las validaciones
+[X] PASO 7.4 - Integrar todas las validaciones
     QUE:     Anadir todas las validaciones:
              - Cuenta existe
              - Cuenta activa
@@ -484,7 +484,7 @@ Objetivo: Construir el programa principal que integra todo:
     CHECK:   Ejecutar y verificar que ERRORS.DAT contiene
              los errores esperados.
 
-[ ] PASO 7.5 - Procesar movimientos validos
+[X] PASO 7.5 - Procesar movimientos validos
     QUE:     Para movimientos validos:
              - Actualizar saldo origen
              - Actualizar saldo destino
@@ -501,7 +501,7 @@ Objetivo: Construir el programa principal que integra todo:
              Verificar que los saldos coinciden con lo
              esperado.
 
-[ ] PASO 7.6 - Calcular comisiones
+[X] PASO 7.6 - Calcular comisiones
     QUE:     Aplicar reglas de negocio para comisiones:
              - Transferencia: 0.1% del importe (min 0.50)
              - Retirada: 2.00 fija
@@ -921,7 +921,7 @@ Fase 3:  Ficheros datos      [3/3]  pasos
 Fase 4:  Lectura ficheros    [3/3]  pasos
 Fase 5:  Busqueda y valid.   [3/3]  pasos
 Fase 6:  Escritura ficheros  [3/3]  pasos
-Fase 7:  Programa principal  [___/6]  pasos
+Fase 7:  Programa principal  [6/6]  pasos
 Fase 8:  Informes            [___/4]  pasos
 Fase 9:  JCL                 [___/4]  pasos
 Fase 10: Scripts             [___/3]  pasos

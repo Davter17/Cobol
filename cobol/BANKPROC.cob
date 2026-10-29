@@ -1,0 +1,687 @@
+IDENTIFICATION DIVISION.
+PROGRAM-ID. BANKPROC.
+AUTHOR. MARIO PICO.
+DATE-WRITTEN. 2026-03-01.
+
+*>================================================*
+*> BANKPROC - Programa principal de batch         *
+*> FASE 7 COMPLETA                                *
+*>   7.1  Estructura principal                    *
+*>   7.2  Lectura de movimientos integrada        *
+*>   7.3  Busqueda de cuentas origen y destino    *
+*>   7.4  Todas las validaciones                  *
+*>   7.5  Procesamiento de movimientos validos    *
+*>   7.6  Calculo de comisiones                   *
+*>================================================*
+
+ENVIRONMENT DIVISION.
+INPUT-OUTPUT SECTION.
+FILE-CONTROL.
+    SELECT MOVEMENTS-FILE ASSIGN TO 'data/MOVIMIENTOS.DAT'
+        ORGANIZATION IS LINE SEQUENTIAL
+        FILE STATUS IS WS-FILE-STATUS.
+
+    SELECT ACCOUNTS-FILE ASSIGN TO 'data/CUENTAS.DAT'
+        ORGANIZATION IS LINE SEQUENTIAL
+        FILE STATUS IS WS-ACCT-STATUS.
+
+    SELECT ERRORS-FILE ASSIGN TO 'output/ERRORS.DAT'
+        ORGANIZATION IS LINE SEQUENTIAL
+        FILE STATUS IS WS-ERR-STATUS.
+
+    SELECT HISTORIC-FILE ASSIGN TO 'output/HISTORICO.DAT'
+        ORGANIZATION IS LINE SEQUENTIAL
+        FILE STATUS IS WS-HIST-STATUS.
+
+DATA DIVISION.
+FILE SECTION.
+FD MOVEMENTS-FILE.
+01 WS-MOVEMENT-RECORD.
+    05 WS-TRANSACTION-ID         PIC 9(10).
+    05 WS-TRANSACTION-TYPE       PIC X(1).
+        88 TYPE-TRANSFER         VALUE "T".
+        88 TYPE-DEPOSIT          VALUE "I".
+        88 TYPE-WITHDRAWAL       VALUE "R".
+        88 TYPE-PAYMENT          VALUE "P".
+    05 WS-TRANSACTION-ORIGIN     PIC 9(6).
+    05 WS-TRANSACTION-DESTINATION PIC 9(6).
+    05 WS-TRANSACTION-AMOUNT     PIC S9(10)V99.
+    05 WS-TRANSACTION-DATE       PIC 9(8).
+    05 WS-TRANSACTION-TIME       PIC 9(6).
+    05 WS-TRANSACTION-CONCEPT    PIC X(40).
+
+FD ACCOUNTS-FILE.
+01 WS-ACCOUNT-RECORD.
+    05 WS-ACCOUNT-NUMBER       PIC 9(6).
+    05 WS-ACCOUNT-DNI          PIC X(9).
+    05 WS-ACCOUNT-NAME         PIC X(30).
+    05 WS-ACCOUNT-BALANCE      PIC S9(10)V99.
+    05 WS-ACCOUNT-STATUS       PIC X(1).
+        88 STATUS-ACTIVE       VALUE "A".
+        88 STATUS-BLOCKED      VALUE "B".
+        88 STATUS-INACTIVE     VALUE "I".
+    05 WS-ACCOUNT-OPEN-DATE    PIC 9(8).
+    05 WS-ACCOUNT-DAILY-LIMIT  PIC 9(10)V99.
+
+FD ERRORS-FILE.
+01 WS-ERROR-RECORD.
+    05 WS-ERR-TIMESTAMP          PIC X(26).
+    05 WS-ERR-TRANSACTION-ID     PIC 9(10).
+    05 WS-ERR-CODE               PIC X(4).
+    05 WS-ERR-DESCRIPTION        PIC X(50).
+    05 WS-ERR-ACCOUNT-ID         PIC 9(6).
+    05 WS-ERR-AMOUNT             PIC S9(10)V99.
+
+FD HISTORIC-FILE.
+01 WS-HISTORIC-RECORD.
+    05 WS-HIST-TIMESTAMP         PIC X(26).
+    05 WS-HIST-TRANSACTION-ID    PIC 9(10).
+    05 WS-HIST-TRANSACTION-TYPE  PIC X(1).
+    05 WS-HIST-ORIGIN-ACCOUNT    PIC 9(6).
+    05 WS-HIST-DESTINATION-ACCOUNT PIC 9(6).
+    05 WS-HIST-AMOUNT            PIC S9(10)V99.
+    05 WS-HIST-DATE              PIC 9(8).
+    05 WS-HIST-TIME              PIC 9(6).
+    05 WS-HIST-CONCEPT           PIC X(40).
+
+WORKING-STORAGE SECTION.
+01 WS-FILE-STATUS          PIC XX.
+01 WS-ACCT-STATUS          PIC XX.
+01 WS-ERR-STATUS           PIC XX.
+01 WS-HIST-STATUS          PIC XX.
+
+*> Flag EOF del fichero de movimientos (bucle principal)
+01 WS-EOF-FLAG             PIC 9 VALUE 0.
+    88 WS-EOF              VALUE 1.
+
+*> Flag EOF separado para busquedas en CUENTAS.DAT
+01 WS-ACCT-EOF-FLAG        PIC 9 VALUE 0.
+    88 WS-ACCT-EOF         VALUE 1.
+
+01 WS-FOUND-FLAG           PIC 9 VALUE 0.
+    88 WS-FOUND            VALUE 1.
+
+01 WS-VALID-FLAG           PIC 9 VALUE 0.
+    88 WS-VALID            VALUE 1.
+
+*> Constantes de BANK-COMMON (sin redefinir variables del FD)
+01 WS-BANK-CODE            PIC X(4)  VALUE "0001".
+01 WS-MAX-AMOUNT           PIC 9(10)V99 VALUE 99999999.99.
+01 WS-MAX-DAILY-LIMIT      PIC 9(10)V99 VALUE 50000.00.
+
+*> Comisión
+01 WS-COMM-TRANSFER-PCT    PIC 9V9999 VALUE 0.0010.
+01 WS-COMM-TRANSFER-MIN    PIC 9(4)V99  VALUE 0.50.
+01 WS-COMM-WITHDRAWAL-FIX  PIC 9(4)V99  VALUE 2.00.
+01 WS-COMM-PAYMENT-PCT     PIC 9V9999 VALUE 0.0005.
+01 WS-COMM-DEPOSIT-FIX     PIC 9(4)V99  VALUE 0.00.
+
+*> Variable auxiliar para el codigo y descripcion de error actual
+01 WS-CURRENT-ERROR-CODE   PIC X(4).
+01 WS-CURRENT-ERROR-DESC   PIC X(50).
+
+*> Cuenta origen guardada tras validacion
+01 WS-ACCOUNT-SAVE.
+    05 WS-SAVE-NUMBER       PIC 9(6).
+    05 WS-SAVE-DNI          PIC X(9).
+    05 WS-SAVE-NAME         PIC X(30).
+    05 WS-SAVE-BALANCE      PIC S9(10)V99.
+    05 WS-SAVE-STATUS       PIC X(1).
+    05 WS-SAVE-OPEN-DATE    PIC 9(8).
+    05 WS-SAVE-DAILY-LIMIT  PIC 9(10)V99.
+
+*> Cuenta destino guardada tras validacion
+01 WS-DESTINATION-SAVE.
+    05 WS-DEST-NUMBER       PIC 9(6).
+    05 WS-DEST-DNI          PIC X(9).
+    05 WS-DEST-NAME         PIC X(30).
+    05 WS-DEST-BALANCE      PIC S9(10)V99.
+    05 WS-DEST-STATUS       PIC X(1).
+    05 WS-DEST-OPEN-DATE    PIC 9(8).
+    05 WS-DEST-DAILY-LIMIT  PIC 9(10)V99.
+
+*> Numero de cuenta que se esta buscando (para subrutina)
+01 WS-SEARCH-ACCOUNT-NUM   PIC 9(6).
+
+*> Comision calculada para la transaccion actual
+01 WS-COMMISSION           PIC 9(4)V99 VALUE 0.
+
+*> Timestamp y componentes de fecha/hora
+01 WS-TIMESTAMP            PIC X(26).
+01 WS-DATE-AND-TIME.
+    05 WS-CURRENT-YEAR     PIC 9(4).
+    05 WS-CURRENT-MONTH    PIC 9(2).
+    05 WS-CURRENT-DAY      PIC 9(2).
+    05 WS-CURRENT-HOUR     PIC 9(2).
+    05 WS-CURRENT-MINUTE   PIC 9(2).
+    05 WS-CURRENT-SECOND   PIC 9(2).
+    05 WS-CURRENT-HUNDREDTH PIC 9(2).
+
+01 WS-COUNTERS.
+    05 WS-TOTAL-MOVEMENTS    PIC 9(6) VALUE 0.
+    05 WS-ACCEPTED           PIC 9(6) VALUE 0.
+    05 WS-REJECTED           PIC 9(6) VALUE 0.
+    05 WS-TRANSFER-COUNT     PIC 9(6) VALUE 0.
+    05 WS-DEPOSIT-COUNT      PIC 9(6) VALUE 0.
+    05 WS-WITHDRAWAL-COUNT   PIC 9(6) VALUE 0.
+    05 WS-PAYMENT-COUNT      PIC 9(6) VALUE 0.
+
+01 WS-ACCUMULATORS.
+    05 WS-TOTAL-DEBITED      PIC S9(12)V99 VALUE 0.
+    05 WS-TOTAL-CREDITED     PIC S9(12)V99 VALUE 0.
+    05 WS-TOTAL-COMMISSIONS  PIC 9(10)V99 VALUE 0.
+
+01 WS-ERROR-COUNTS.
+    05 WS-ERR-E001-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E002-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E003-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E004-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E005-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E006-COUNT     PIC 9(4) VALUE 0.
+    05 WS-ERR-E007-COUNT     PIC 9(4) VALUE 0.
+
+01 WS-DISPLAY-AMOUNT       PIC ZZZ,ZZZ,ZZ9.99.
+
+PROCEDURE DIVISION.
+MAIN-PROGRAM.
+    PERFORM 1000-INITIALIZE
+    PERFORM 2000-PROCESS-MOVEMENTS
+    PERFORM 9000-FINALIZE
+    STOP RUN.
+
+*>================================================*
+*> 1000 - INICIALIZACION                          *
+*>================================================*
+1000-INITIALIZE.
+    DISPLAY "========================================"
+    DISPLAY "    COBOL BANKING BATCH SYSTEM"
+    DISPLAY "    DAILY PROCESSING START"
+    DISPLAY "========================================"
+    DISPLAY " "
+    PERFORM 1100-OPEN-MOVEMENTS
+    PERFORM 1200-OPEN-ACCOUNTS
+    PERFORM 1300-OPEN-ERRORS
+    PERFORM 1400-OPEN-HISTORIC.
+
+1100-OPEN-MOVEMENTS.
+    OPEN INPUT MOVEMENTS-FILE
+    IF WS-FILE-STATUS NOT = "00"
+        DISPLAY "ERROR OPENING MOVIMIENTOS.DAT: " WS-FILE-STATUS
+        STOP RUN
+    END-IF.
+
+1200-OPEN-ACCOUNTS.
+    OPEN I-O ACCOUNTS-FILE
+    IF WS-ACCT-STATUS NOT = "00"
+        DISPLAY "ERROR OPENING CUENTAS.DAT: " WS-ACCT-STATUS
+        STOP RUN
+    END-IF.
+
+1300-OPEN-ERRORS.
+    OPEN OUTPUT ERRORS-FILE
+    IF WS-ERR-STATUS NOT = "00"
+        DISPLAY "ERROR OPENING ERRORS.DAT: " WS-ERR-STATUS
+        STOP RUN
+    END-IF.
+
+1400-OPEN-HISTORIC.
+    OPEN EXTEND HISTORIC-FILE
+    IF WS-HIST-STATUS = "35"
+        OPEN OUTPUT HISTORIC-FILE
+        IF WS-HIST-STATUS NOT = "00"
+            DISPLAY "ERROR CREATING HISTORICO.DAT: "
+                WS-HIST-STATUS
+            STOP RUN
+        END-IF
+    ELSE IF WS-HIST-STATUS NOT = "00"
+        DISPLAY "ERROR OPENING HISTORICO.DAT: "
+            WS-HIST-STATUS
+        STOP RUN
+    END-IF.
+
+*>================================================*
+*> 2000 - BUCLE PRINCIPAL                         *
+*> PASO 7.2: Lectura de movimientos               *
+*>================================================*
+2000-PROCESS-MOVEMENTS.
+    PERFORM UNTIL WS-EOF
+        READ MOVEMENTS-FILE
+            AT END
+                SET WS-EOF TO TRUE
+            NOT AT END
+                ADD 1 TO WS-TOTAL-MOVEMENTS
+                PERFORM 3000-VALIDATE-MOVEMENT
+                IF WS-VALID
+                    PERFORM 4000-PROCESS-VALID
+                ELSE
+                    PERFORM 5000-PROCESS-ERROR
+                END-IF
+        END-READ
+    END-PERFORM.
+
+*>================================================*
+*> 3000 - VALIDACION                              *
+*> PASO 7.3: Busqueda de cuentas                  *
+*> PASO 7.4: Todas las validaciones               *
+*>================================================*
+3000-VALIDATE-MOVEMENT.
+    SET WS-VALID TO TRUE
+    MOVE "0000" TO WS-CURRENT-ERROR-CODE
+    MOVE SPACES TO WS-CURRENT-ERROR-DESC
+    MOVE 0 TO WS-COMMISSION
+
+    *> PASO 7.4 - Validar importe (E004)
+    PERFORM 3100-VALIDATE-AMOUNT
+
+    *> PASO 7.3+7.4 - Validar cuenta origen
+    *> (solo si NO es un ingreso; en ingresos origen = 000000)
+    IF WS-VALID
+        IF NOT TYPE-DEPOSIT
+            PERFORM 3200-VALIDATE-ORIGIN
+        END-IF
+    END-IF
+
+    *> PASO 7.3+7.4 - Validar cuenta destino
+    *> (solo si NO es una retirada; en retiradas destino = 000000)
+    IF WS-VALID
+        IF NOT TYPE-WITHDRAWAL
+            PERFORM 3300-VALIDATE-DESTINATION
+        END-IF
+    END-IF.
+
+*>-----------------------------------------------*
+*> 3100 - VALIDACION DE IMPORTE (E004)          *
+*> PASO 7.4                                     *
+*>-----------------------------------------------*
+3100-VALIDATE-AMOUNT.
+    IF WS-TRANSACTION-AMOUNT <= 0
+        MOVE 0 TO WS-VALID-FLAG
+        MOVE "E004" TO WS-CURRENT-ERROR-CODE
+        MOVE "IMPORTE INVALIDO: MENOR O IGUAL A CERO "
+            TO WS-CURRENT-ERROR-DESC
+    ELSE IF WS-TRANSACTION-AMOUNT > WS-MAX-AMOUNT
+        MOVE 0 TO WS-VALID-FLAG
+        MOVE "E004" TO WS-CURRENT-ERROR-CODE
+        MOVE "IMPORTE EXCEDE MAXIMO PERMITIDO       "
+            TO WS-CURRENT-ERROR-DESC
+    END-IF
+    END-IF.
+
+*>-----------------------------------------------*
+*> 3200 - VALIDACION DE CUENTA ORIGEN            *
+*> PASO 7.3: Busqueda + 7.4: Estado, saldo,      *
+*>           limite diario                        *
+*>-----------------------------------------------*
+3200-VALIDATE-ORIGIN.
+    MOVE WS-TRANSACTION-ORIGIN TO WS-SEARCH-ACCOUNT-NUM
+    PERFORM 3900-SEARCH-ACCOUNT
+
+    IF NOT WS-FOUND
+        *> E001: cuenta no encontrada
+        MOVE 0 TO WS-VALID-FLAG
+        MOVE "E001" TO WS-CURRENT-ERROR-CODE
+        MOVE "CUENTA ORIGEN NO ENCONTRADA           "
+            TO WS-CURRENT-ERROR-DESC
+    ELSE
+        *> Guardar el registro encontrado
+        MOVE WS-ACCOUNT-RECORD TO WS-ACCOUNT-SAVE
+
+        *> E003: cuenta bloqueada
+        IF STATUS-BLOCKED
+            MOVE 0 TO WS-VALID-FLAG
+            MOVE "E003" TO WS-CURRENT-ERROR-CODE
+            MOVE "CUENTA ORIGEN BLOQUEADA               "
+                TO WS-CURRENT-ERROR-DESC
+        *> E006: cuenta inactiva
+        ELSE IF STATUS-INACTIVE
+            MOVE 0 TO WS-VALID-FLAG
+            MOVE "E006" TO WS-CURRENT-ERROR-CODE
+            MOVE "CUENTA ORIGEN INACTIVA                "
+                TO WS-CURRENT-ERROR-DESC
+        ELSE
+            *> E002: saldo insuficiente
+            *> (solo para operaciones que debitan: T, R, P)
+            IF NOT TYPE-DEPOSIT
+                IF WS-ACCOUNT-BALANCE < WS-TRANSACTION-AMOUNT
+                    MOVE 0 TO WS-VALID-FLAG
+                    MOVE "E002" TO WS-CURRENT-ERROR-CODE
+                    MOVE "SALDO INSUFICIENTE EN CUENTA ORIGEN "
+                        TO WS-CURRENT-ERROR-DESC
+                END-IF
+            END-IF
+
+            *> E007: excede limite diario
+            IF WS-VALID
+                IF WS-TRANSACTION-AMOUNT > WS-ACCOUNT-DAILY-LIMIT
+                    MOVE 0 TO WS-VALID-FLAG
+                    MOVE "E007" TO WS-CURRENT-ERROR-CODE
+                    MOVE "IMPORTE EXCEDE LIMITE DIARIO          "
+                        TO WS-CURRENT-ERROR-DESC
+                END-IF
+            END-IF
+        END-IF
+    END-IF.
+
+*>-----------------------------------------------*
+*> 3300 - VALIDACION DE CUENTA DESTINO           *
+*> PASO 7.3 + 7.4                                *
+*>-----------------------------------------------*
+3300-VALIDATE-DESTINATION.
+    MOVE WS-TRANSACTION-DESTINATION TO WS-SEARCH-ACCOUNT-NUM
+    PERFORM 3900-SEARCH-ACCOUNT
+
+    IF NOT WS-FOUND
+        *> E001: cuenta no encontrada
+        MOVE 0 TO WS-VALID-FLAG
+        MOVE "E001" TO WS-CURRENT-ERROR-CODE
+        MOVE "CUENTA DESTINO NO ENCONTRADA          "
+            TO WS-CURRENT-ERROR-DESC
+    ELSE
+        *> Guardar el registro encontrado
+        MOVE WS-ACCOUNT-RECORD TO WS-DESTINATION-SAVE
+
+        *> E003: cuenta bloqueada
+        IF STATUS-BLOCKED
+            MOVE 0 TO WS-VALID-FLAG
+            MOVE "E003" TO WS-CURRENT-ERROR-CODE
+            MOVE "CUENTA DESTINO BLOQUEADA              "
+                TO WS-CURRENT-ERROR-DESC
+        *> E006: cuenta inactiva
+        ELSE IF STATUS-INACTIVE
+            MOVE 0 TO WS-VALID-FLAG
+            MOVE "E006" TO WS-CURRENT-ERROR-CODE
+            MOVE "CUENTA DESTINO INACTIVA               "
+                TO WS-CURRENT-ERROR-DESC
+        END-IF
+    END-IF.
+
+*>-----------------------------------------------*
+*> 3900 - SUBRUTINA: BUSCAR CUENTA POR NUMERO   *
+*> PASO 7.3                                     *
+*> Usa WS-SEARCH-ACCOUNT-NUM como entrada       *
+*> Devuelve WS-ACCOUNT-RECORD si la encuentra   *
+*> Flag WS-FOUND indica resultado               *
+*> Usa WS-ACCT-EOF (independiente de WS-EOF)    *
+*>-----------------------------------------------*
+3900-SEARCH-ACCOUNT.
+    MOVE 0 TO WS-FOUND-FLAG
+    MOVE 0 TO WS-ACCT-EOF-FLAG
+
+    *> Cerrar y reabrir para reposicionar al inicio
+    CLOSE ACCOUNTS-FILE
+    OPEN I-O ACCOUNTS-FILE
+    IF WS-ACCT-STATUS NOT = "00"
+        DISPLAY "ERROR REOPENING CUENTAS.DAT: "
+            WS-ACCT-STATUS
+        STOP RUN
+    END-IF
+
+    *> Busqueda secuencial
+    PERFORM UNTIL WS-ACCT-EOF OR WS-FOUND
+        READ ACCOUNTS-FILE
+            AT END
+                SET WS-ACCT-EOF TO TRUE
+            NOT AT END
+                IF WS-ACCOUNT-NUMBER = WS-SEARCH-ACCOUNT-NUM
+                    SET WS-FOUND TO TRUE
+                END-IF
+        END-READ
+    END-PERFORM.
+
+*>================================================*
+*> 4000 - PROCESAMIENTO DE MOVIMIENTO VALIDO      *
+*> PASO 7.5: Actualizacion + Historico            *
+*> PASO 7.6: Calculo de comisiones                *
+*>================================================*
+4000-PROCESS-VALID.
+    ADD 1 TO WS-ACCEPTED
+
+    *> Contadores por tipo de operacion
+    EVALUATE TRUE
+        WHEN TYPE-TRANSFER
+            ADD 1 TO WS-TRANSFER-COUNT
+        WHEN TYPE-DEPOSIT
+            ADD 1 TO WS-DEPOSIT-COUNT
+        WHEN TYPE-WITHDRAWAL
+            ADD 1 TO WS-WITHDRAWAL-COUNT
+        WHEN TYPE-PAYMENT
+            ADD 1 TO WS-PAYMENT-COUNT
+    END-EVALUATE
+
+    *> PASO 7.5 - Actualizar saldo origen
+    IF NOT TYPE-DEPOSIT
+        PERFORM 4100-UPDATE-ORIGIN
+    END-IF
+
+    *> PASO 7.5 - Actualizar saldo destino
+    IF TYPE-TRANSFER OR TYPE-DEPOSIT
+        PERFORM 4200-UPDATE-DESTINATION
+    END-IF
+
+    *> PASO 7.6 - Calcular comision
+    PERFORM 4300-CALCULATE-COMMISSION
+
+    *> PASO 7.5 - Registrar en historico
+    PERFORM 4400-WRITE-HISTORIC.
+
+*>-----------------------------------------------*
+*> 4100 - ACTUALIZAR SALDO ORIGEN (DEBITO)      *
+*> PASO 7.5                                     *
+*>-----------------------------------------------*
+4100-UPDATE-ORIGIN.
+    MOVE WS-SAVE-NUMBER TO WS-SEARCH-ACCOUNT-NUM
+    PERFORM 3900-SEARCH-ACCOUNT
+
+    IF WS-FOUND
+        SUBTRACT WS-TRANSACTION-AMOUNT FROM WS-ACCOUNT-BALANCE
+        REWRITE WS-ACCOUNT-RECORD
+        IF WS-ACCT-STATUS NOT = "00"
+            DISPLAY "ERROR UPDATING ORIGIN ACCOUNT: "
+                WS-ACCT-STATUS
+        END-IF
+        ADD WS-TRANSACTION-AMOUNT TO WS-TOTAL-DEBITED
+    END-IF.
+
+*>-----------------------------------------------*
+*> 4200 - ACTUALIZAR SALDO DESTINO (CREDITO)    *
+*> PASO 7.5                                     *
+*>-----------------------------------------------*
+4200-UPDATE-DESTINATION.
+    MOVE WS-DEST-NUMBER TO WS-SEARCH-ACCOUNT-NUM
+    PERFORM 3900-SEARCH-ACCOUNT
+
+    IF WS-FOUND
+        ADD WS-TRANSACTION-AMOUNT TO WS-ACCOUNT-BALANCE
+        REWRITE WS-ACCOUNT-RECORD
+        IF WS-ACCT-STATUS NOT = "00"
+            DISPLAY "ERROR UPDATING DEST ACCOUNT: "
+                WS-ACCT-STATUS
+        END-IF
+        ADD WS-TRANSACTION-AMOUNT TO WS-TOTAL-CREDITED
+    END-IF.
+
+*>-----------------------------------------------*
+*> 4300 - CALCULAR COMISION                      *
+*> PASO 7.6                                     *
+*> Reglas:                                       *
+*>   Transferencia: 0.1% del importe (min 0.50)  *
+*>   Retirada:      2.00 fija                    *
+*>   Ingreso:       gratis (0.00)                *
+*>   Pago:          0.05% del importe            *
+*>-----------------------------------------------*
+4300-CALCULATE-COMMISSION.
+    MOVE 0 TO WS-COMMISSION
+
+    EVALUATE TRUE
+        WHEN TYPE-TRANSFER
+            COMPUTE WS-COMMISSION =
+                WS-TRANSACTION-AMOUNT * 0.0010
+            IF WS-COMMISSION < 0.50
+                MOVE 0.50 TO WS-COMMISSION
+            END-IF
+        WHEN TYPE-WITHDRAWAL
+            MOVE 2.00 TO WS-COMMISSION
+        WHEN TYPE-DEPOSIT
+            MOVE 0 TO WS-COMMISSION
+        WHEN TYPE-PAYMENT
+            COMPUTE WS-COMMISSION =
+                WS-TRANSACTION-AMOUNT * 0.0005
+    END-EVALUATE
+
+    ADD WS-COMMISSION TO WS-TOTAL-COMMISSIONS.
+
+*>-----------------------------------------------*
+*> 4400 - REGISTRAR EN HISTORICO                *
+*> PASO 7.5                                     *
+*>-----------------------------------------------*
+4400-WRITE-HISTORIC.
+    *> Construir timestamp
+    PERFORM 9500-BUILD-TIMESTAMP
+
+    *> Preparar registro
+    MOVE WS-TIMESTAMP TO WS-HIST-TIMESTAMP
+    MOVE WS-TRANSACTION-ID TO WS-HIST-TRANSACTION-ID
+    MOVE WS-TRANSACTION-TYPE TO WS-HIST-TRANSACTION-TYPE
+    MOVE WS-TRANSACTION-ORIGIN TO WS-HIST-ORIGIN-ACCOUNT
+    MOVE WS-TRANSACTION-DESTINATION
+        TO WS-HIST-DESTINATION-ACCOUNT
+    MOVE WS-TRANSACTION-AMOUNT TO WS-HIST-AMOUNT
+    MOVE WS-TRANSACTION-DATE TO WS-HIST-DATE
+    MOVE WS-TRANSACTION-TIME TO WS-HIST-TIME
+    MOVE WS-TRANSACTION-CONCEPT TO WS-HIST-CONCEPT
+
+    *> Escribir
+    WRITE WS-HISTORIC-RECORD
+    IF WS-HIST-STATUS NOT = "00"
+        DISPLAY "ERROR WRITING HISTORIC: " WS-HIST-STATUS
+    END-IF.
+
+*>================================================*
+*> 5000 - PROCESAMIENTO DE MOVIMIENTO CON ERROR   *
+*>================================================*
+5000-PROCESS-ERROR.
+    ADD 1 TO WS-REJECTED
+    PERFORM 5100-WRITE-ERROR
+    PERFORM 5200-UPDATE-ERROR-COUNTS.
+
+*>-----------------------------------------------*
+*> 5100 - ESCRIBIR REGISTRO DE ERROR             *
+*> PASO 7.4                                     *
+*>-----------------------------------------------*
+5100-WRITE-ERROR.
+    *> Construir timestamp
+    PERFORM 9500-BUILD-TIMESTAMP
+
+    *> Determinar cuenta asociada al error
+    EVALUATE TRUE
+        WHEN TYPE-DEPOSIT
+            MOVE WS-TRANSACTION-DESTINATION
+                TO WS-ERR-ACCOUNT-ID
+        WHEN TYPE-WITHDRAWAL
+            MOVE WS-TRANSACTION-ORIGIN
+                TO WS-ERR-ACCOUNT-ID
+        WHEN OTHER
+            MOVE WS-TRANSACTION-ORIGIN
+                TO WS-ERR-ACCOUNT-ID
+    END-EVALUATE
+
+    *> Preparar registro
+    MOVE WS-TIMESTAMP TO WS-ERR-TIMESTAMP
+    MOVE WS-TRANSACTION-ID TO WS-ERR-TRANSACTION-ID
+    MOVE WS-CURRENT-ERROR-CODE TO WS-ERR-CODE
+    MOVE WS-CURRENT-ERROR-DESC TO WS-ERR-DESCRIPTION
+    MOVE WS-TRANSACTION-AMOUNT TO WS-ERR-AMOUNT
+
+    *> Escribir
+    WRITE WS-ERROR-RECORD
+    IF WS-ERR-STATUS NOT = "00"
+        DISPLAY "ERROR WRITING ERROR: " WS-ERR-STATUS
+    END-IF.
+
+*>-----------------------------------------------*
+*> 5200 - ACTUALIZAR CONTADORES DE ERROR         *
+*>-----------------------------------------------*
+5200-UPDATE-ERROR-COUNTS.
+    EVALUATE WS-CURRENT-ERROR-CODE
+        WHEN "E001"
+            ADD 1 TO WS-ERR-E001-COUNT
+        WHEN "E002"
+            ADD 1 TO WS-ERR-E002-COUNT
+        WHEN "E003"
+            ADD 1 TO WS-ERR-E003-COUNT
+        WHEN "E004"
+            ADD 1 TO WS-ERR-E004-COUNT
+        WHEN "E005"
+            ADD 1 TO WS-ERR-E005-COUNT
+        WHEN "E006"
+            ADD 1 TO WS-ERR-E006-COUNT
+        WHEN "E007"
+            ADD 1 TO WS-ERR-E007-COUNT
+    END-EVALUATE.
+
+*>================================================*
+*> 9000 - FINALIZACION                            *
+*>================================================*
+9000-FINALIZE.
+    PERFORM 9100-CLOSE-FILES
+    PERFORM 9200-SHOW-SUMMARY.
+
+9100-CLOSE-FILES.
+    CLOSE MOVEMENTS-FILE
+    CLOSE ACCOUNTS-FILE
+    CLOSE ERRORS-FILE
+    CLOSE HISTORIC-FILE.
+
+*>-----------------------------------------------*
+*> 9200 - RESUMEN FINAL                          *
+*>-----------------------------------------------*
+9200-SHOW-SUMMARY.
+    DISPLAY " "
+    DISPLAY "========================================"
+    DISPLAY "    DAILY PROCESSING COMPLETE"
+    DISPLAY "========================================"
+    DISPLAY " "
+    DISPLAY "TOTAL MOVEMENTS:  " WS-TOTAL-MOVEMENTS
+    DISPLAY "ACCEPTED:         " WS-ACCEPTED
+    DISPLAY "REJECTED:         " WS-REJECTED
+    DISPLAY " "
+    DISPLAY "OPERATIONS BY TYPE:"
+    DISPLAY "  TRANSFERS:      " WS-TRANSFER-COUNT
+    DISPLAY "  DEPOSITS:       " WS-DEPOSIT-COUNT
+    DISPLAY "  WITHDRAWALS:    " WS-WITHDRAWAL-COUNT
+    DISPLAY "  PAYMENTS:       " WS-PAYMENT-COUNT
+    DISPLAY " "
+    DISPLAY "FINANCIAL SUMMARY:"
+    MOVE WS-TOTAL-DEBITED TO WS-DISPLAY-AMOUNT
+    DISPLAY "  TOTAL DEBITED:  " WS-DISPLAY-AMOUNT " EUR"
+    MOVE WS-TOTAL-CREDITED TO WS-DISPLAY-AMOUNT
+    DISPLAY "  TOTAL CREDITED: " WS-DISPLAY-AMOUNT " EUR"
+    MOVE WS-TOTAL-COMMISSIONS TO WS-DISPLAY-AMOUNT
+    DISPLAY "  COMMISSIONS:    " WS-DISPLAY-AMOUNT " EUR"
+    DISPLAY " "
+    DISPLAY "ERRORS BREAKDOWN:"
+    DISPLAY "  E001 (ACCOUNT NOT FOUND): " WS-ERR-E001-COUNT
+    DISPLAY "  E002 (INSUFFICIENT BAL):  " WS-ERR-E002-COUNT
+    DISPLAY "  E003 (ACCOUNT BLOCKED):   " WS-ERR-E003-COUNT
+    DISPLAY "  E004 (INVALID AMOUNT):    " WS-ERR-E004-COUNT
+    DISPLAY "  E005 (DUPLICATE MOV):     " WS-ERR-E005-COUNT
+    DISPLAY "  E006 (ACCOUNT INACTIVE):  " WS-ERR-E006-COUNT
+    DISPLAY "  E007 (DAILY LIMIT):       " WS-ERR-E007-COUNT
+    DISPLAY " "
+    DISPLAY "OUTPUT FILES:"
+    DISPLAY "  ERRORS:    output/ERRORS.DAT"
+    DISPLAY "  HISTORIC:  output/HISTORICO.DAT"
+    DISPLAY "  ACCOUNTS:  data/CUENTAS.DAT (UPDATED)"
+    DISPLAY " "
+    DISPLAY "========================================".
+
+*>-----------------------------------------------*
+*> 9500 - CONSTRUIR TIMESTAMP                    *
+*>-----------------------------------------------*
+9500-BUILD-TIMESTAMP.
+    MOVE FUNCTION CURRENT-DATE TO WS-DATE-AND-TIME
+    STRING
+        WS-CURRENT-YEAR   WS-CURRENT-MONTH WS-CURRENT-DAY
+        " "
+        WS-CURRENT-HOUR   WS-CURRENT-MINUTE WS-CURRENT-SECOND
+        DELIMITED BY SIZE INTO WS-TIMESTAMP.
