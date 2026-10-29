@@ -812,7 +812,7 @@ FASE 13: PUBLICACION Y PORTAFOLIO
 
 Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
 
-[ ] PASO 13.1 - Limpiar el repositorio
+[X] PASO 13.1 - Limpiar el repositorio
     QUE:     Revisar todo el codigo, eliminar temporales,
              verificar .gitignore.
     POR QUE: Un repo sucio da mala imagen.
@@ -822,7 +822,7 @@ Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
              .gitignore correcto.
     CHECK:   "git status" no muestra ficheros basura.
 
-[ ] PASO 13.2 - Historial de commits limpio
+[X] PASO 13.2 - Historial de commits limpio
     QUE:     Revisar que los commits tienen mensajes claros
              y la evolucion es logica.
     POR QUE: Los reclutadores tecnicos miran el historial.
@@ -834,7 +834,7 @@ Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
              "Add JCL for batch execution"
     CHECK:   "git log --oneline" muestra una historia clara.
 
-[ ] PASO 13.3 - Subir a GitHub
+[X] PASO 13.3 - Subir a GitHub
     QUE:     Crear repo en GitHub y hacer push.
     POR QUE: Tu proyecto debe ser accesible online.
     CONCEPTO: GitHub, repositorios publicos.
@@ -843,7 +843,7 @@ Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
              codigo y documentacion.
     CHECK:   La URL funciona y muestra el README.
 
-[ ] PASO 13.4 - Capturas de pantalla
+[X] PASO 13.4 - Capturas de pantalla
     QUE:     Hacer capturas de:
              - Compilacion exitosa
              - Ejecucion del batch
@@ -858,7 +858,7 @@ Objetivo: Publicar el proyecto y prepararlo para tu portafolio.
     CHECK:   Las capturas son claras y muestran el
              funcionamiento del sistema.
 
-[ ] PASO 13.5 - Preparar para entrevistas
+[X] PASO 13.5 - Preparar para entrevistas
     QUE:     Preparar un "elevator pitch" de 2 minutos
              sobre el proyecto.
     POR QUE: En una entrevista, debes poder explicar tu
@@ -927,7 +927,7 @@ Fase 9:  JCL                 [4/4]  pasos
 Fase 10: Scripts             [3/3]  pasos
 Fase 11: Testing             [3/3]  pasos
 Fase 12: Documentacion       [4/4]  pasos
-Fase 13: Publicacion         [___/5]  pasos
+Fase 13: Publicacion         [5/5]  pasos
 Fase 14: Modernizacion       [___/2]  pasos (opcional)
                                 ─────
                          TOTAL: 54 pasos
