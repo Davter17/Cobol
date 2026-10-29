@@ -704,7 +704,7 @@ FASE 11: TESTING
 Objetivo: Documentar y ejecutar pruebas que demuestren que
           el sistema funciona correctamente.
 
-[ ] PASO 11.1 - Definir casos de prueba
+[X] PASO 11.1 - Definir casos de prueba
     QUE:     tests/test-cases.md con casos de prueba
              documentados.
     POR QUE: Demuestra que piensas en calidad, no solo
@@ -718,7 +718,7 @@ Objetivo: Documentar y ejecutar pruebas que demuestren que
              Cada caso: input, expected output, resultado.
     CHECK:   El documento existe y es completo.
 
-[ ] PASO 11.2 - Ejecutar pruebas
+[X] PASO 11.2 - Ejecutar pruebas
     QUE:     Ejecutar cada caso de prueba y documentar
              resultados.
     POR QUE: Las pruebas solo valen si se ejecutan y se
@@ -730,7 +730,7 @@ Objetivo: Documentar y ejecutar pruebas que demuestren que
     CHECK:   Cada caso de prueba tiene resultado documentado
              (PASS/FAIL).
 
-[ ] PASO 11.3 - Verificar integridad de datos
+[X] PASO 11.3 - Verificar integridad de datos
     QUE:     Tras ejecutar el batch, verificar que:
              - La suma de saldos antes = suma de saldos despues
                (menos comisiones)
@@ -925,7 +925,7 @@ Fase 7:  Programa principal  [6/6]  pasos
 Fase 8:  Informes            [4/4]  pasos
 Fase 9:  JCL                 [4/4]  pasos
 Fase 10: Scripts             [3/3]  pasos
-Fase 11: Testing             [___/3]  pasos
+Fase 11: Testing             [3/3]  pasos
 Fase 12: Documentacion       [___/4]  pasos
 Fase 13: Publicacion         [___/5]  pasos
 Fase 14: Modernizacion       [___/2]  pasos (opcional)
