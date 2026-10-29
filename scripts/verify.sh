@@ -224,6 +224,81 @@ fi
 echo ""
 
 # ============================================
+# 8. Verificar ficheros JCL (Fase 9)
+# ============================================
+echo "8. Verificando ficheros JCL..."
+
+# Verificar existencia de BANKJOB.jcl
+if [ -f "jcl/BANKJOB.jcl" ]; then
+    check_result 0 "BANKJOB.jcl existe"
+else
+    check_result 1 "BANKJOB.jcl existe" "Archivo no encontrado"
+fi
+
+# Verificar existencia de SORTJOB.jcl
+if [ -f "jcl/SORTJOB.jcl" ]; then
+    check_result 0 "SORTJOB.jcl existe"
+else
+    check_result 1 "SORTJOB.jcl existe" "Archivo no encontrado"
+fi
+
+# Verificar que BANKJOB.jcl contiene EXEC PGM=BANKPROC
+if grep -q "EXEC PGM=BANKPROC" jcl/BANKJOB.jcl; then
+    check_result 0 "BANKJOB.jcl contiene EXEC PGM=BANKPROC"
+else
+    check_result 1 "BANKJOB.jcl contiene EXEC PGM=BANKPROC" "No encontrado"
+fi
+
+# Verificar DD statements en BANKJOB.jcl
+if grep -q "MOVEMENTS.*DD" jcl/BANKJOB.jcl && \
+   grep -q "ACCOUNTS.*DD" jcl/BANKJOB.jcl && \
+   grep -q "ERRORS.*DD" jcl/BANKJOB.jcl && \
+   grep -q "HISTORIC.*DD" jcl/BANKJOB.jcl && \
+   grep -q "REPORT.*DD" jcl/BANKJOB.jcl && \
+   grep -q "AUDIT.*DD" jcl/BANKJOB.jcl; then
+    check_result 0 "BANKJOB.jcl tiene todos los DD statements"
+else
+    check_result 1 "BANKJOB.jcl tiene todos los DD statements" "Faltan DD statements"
+fi
+
+# Verificar que BANKJOB.jcl tiene SYSOUT
+if grep -q "SYSOUT" jcl/BANKJOB.jcl; then
+    check_result 0 "BANKJOB.jcl tiene SYSOUT"
+else
+    check_result 1 "BANKJOB.jcl tiene SYSOUT" "No encontrado"
+fi
+
+# Verificar que SORTJOB.jcl contiene EXEC PGM=SORT
+if grep -q "EXEC PGM=SORT" jcl/SORTJOB.jcl; then
+    check_result 0 "SORTJOB.jcl contiene EXEC PGM=SORT"
+else
+    check_result 1 "SORTJOB.jcl contiene EXEC PGM=SORT" "No encontrado"
+fi
+
+# Verificar que SORTJOB.jcl contiene SORT FIELDS
+if grep -q "SORT FIELDS" jcl/SORTJOB.jcl; then
+    check_result 0 "SORTJOB.jcl contiene SORT FIELDS"
+else
+    check_result 1 "SORTJOB.jcl contiene SORT FIELDS" "No encontrado"
+fi
+
+# Verificar que SORTJOB.jcl tiene comentarios explicativos
+if grep -q "^//\*" jcl/SORTJOB.jcl; then
+    check_result 0 "SORTJOB.jcl tiene comentarios explicativos"
+else
+    check_result 1 "SORTJOB.jcl tiene comentarios explicativos" "No encontrados"
+fi
+
+# Verificar que BANKJOB.jcl tiene comentarios explicativos
+if grep -q "^//\*" jcl/BANKJOB.jcl; then
+    check_result 0 "BANKJOB.jcl tiene comentarios explicativos"
+else
+    check_result 1 "BANKJOB.jcl tiene comentarios explicativos" "No encontrados"
+fi
+
+echo ""
+
+# ============================================
 # Resumen final
 # ============================================
 echo "=========================================="
@@ -236,7 +311,7 @@ echo "=========================================="
 
 if [ $FAIL -eq 0 ]; then
     echo "✓ TODAS LAS PRUEBAS PASARON CORRECTAMENTE"
-    echo "✓ Fase 8 funciona perfectamente"
+    echo "✓ Fase 8 y Fase 9 funcionan perfectamente"
     exit 0
 else
     echo "✗ ALGUNAS PRUEBAS FALLARON"

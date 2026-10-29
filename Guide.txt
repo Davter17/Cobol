@@ -595,7 +595,7 @@ Objetivo: Escribir los JCL que ejecutarian el batch en un
           mainframe real. Aunque no tengas mainframe, mostrar
           JCL en tu portafolio es un gran diferenciador.
 
-[ ] PASO 9.1 - Entender JCL basico
+[X] PASO 9.1 - Entender JCL basico
     QUE:     Aprender la estructura de un JCL:
              - Job card
              - EXEC statement
@@ -610,7 +610,7 @@ Objetivo: Escribir los JCL que ejecutarian el batch en un
              parte de un JCL.
     CHECK:   Puedes leer un JCL y entender que hace.
 
-[ ] PASO 9.2 - Crear BANKJOB.jcl
+[X] PASO 9.2 - Crear BANKJOB.jcl
     QUE:     JCL para ejecutar BANKPROC con todos los
              ficheros de entrada y salida.
     POR QUE: Es el JCL principal del sistema. Define como
@@ -626,7 +626,7 @@ Objetivo: Escribir los JCL que ejecutarian el batch en un
     CHECK:   El JCL tiene sintaxis correcta y todas las
              DD statements necesarias.
 
-[ ] PASO 9.3 - Crear SORTJOB.jcl
+[X] PASO 9.3 - Crear SORTJOB.jcl
     QUE:     JCL para ordenar movimientos antes de procesar.
     POR QUE: En mainframe, a veces se ordenan los datos
              antes del batch. Es una practica comun.
@@ -636,7 +636,7 @@ Objetivo: Escribir los JCL que ejecutarian el batch en un
              por numero de cuenta.
     CHECK:   El JCL tiene sintaxis correcta.
 
-[ ] PASO 9.4 - Comentar el JCL
+[X] PASO 9.4 - Comentar el JCL
     QUE:     Anadir comentarios explicativos al JCL.
     POR QUE: Los reclutadores valoran que entiendas lo que
              escribes, no solo que copies. Los comentarios
@@ -923,7 +923,7 @@ Fase 5:  Busqueda y valid.   [3/3]  pasos
 Fase 6:  Escritura ficheros  [3/3]  pasos
 Fase 7:  Programa principal  [6/6]  pasos
 Fase 8:  Informes            [4/4]  pasos
-Fase 9:  JCL                 [___/4]  pasos
+Fase 9:  JCL                 [4/4]  pasos
 Fase 10: Scripts             [___/3]  pasos
 Fase 11: Testing             [___/3]  pasos
 Fase 12: Documentacion       [___/4]  pasos
