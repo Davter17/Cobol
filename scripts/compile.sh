@@ -24,6 +24,7 @@ ERRORES=0
 # Directorios
 COBOL_DIR="cobol"
 COPYBOOK_DIR="copybooks"
+BIN_DIR="bin"
 
 # Verificar que existen los directorios
 if [ ! -d "$COBOL_DIR" ]; then
@@ -34,6 +35,11 @@ fi
 if [ ! -d "$COPYBOOK_DIR" ]; then
     echo -e "${RED}ERROR: No existe el directorio $COPYBOOK_DIR${NC}"
     exit 1
+fi
+
+# Crear directorio bin si no existe
+if [ ! -d "$BIN_DIR" ]; then
+    mkdir -p "$BIN_DIR"
 fi
 
 echo "Compilando programas COBOL..."
@@ -47,15 +53,15 @@ for cob_file in "$COBOL_DIR"/*.cob; do
         
         echo -n "Compilando $filename.cob... "
         
-        # Compilar con cobc
-        if cobc -x -free -I "$COPYBOOK_DIR" "$cob_file" > /dev/null 2>&1; then
+        # Compilar con cobc hacia el directorio bin/
+        if cobc -x -free -I "$COPYBOOK_DIR" "$cob_file" -o "$BIN_DIR/$filename" > /dev/null 2>&1; then
             echo -e "${GREEN}✓ OK${NC}"
             EXITOS=$((EXITOS + 1))
         else
             echo -e "${RED}✗ ERROR${NC}"
             ERRORES=$((ERRORES + 1))
             # Mostrar el error real
-            cobc -x -free -I "$COPYBOOK_DIR" "$cob_file" 2>&1 | head -5
+            cobc -x -free -I "$COPYBOOK_DIR" "$cob_file" -o "$BIN_DIR/$filename" 2>&1 | head -5
         fi
     fi
 done

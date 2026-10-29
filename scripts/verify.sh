@@ -315,7 +315,7 @@ echo "=========================================="
 
 if [ $FAIL -eq 0 ]; then
     echo "✓ TODAS LAS PRUEBAS PASARON CORRECTAMENTE"
-    echo "✓ Fases 8, 9, 10 y 11 funcionan perfectamente"
+    echo "✓ Fases 8, 9, 10, 11 y 12 funcionan perfectamente"
     exit 0
 else
     echo "✗ ALGUNAS PRUEBAS FALLARON"

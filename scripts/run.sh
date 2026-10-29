@@ -17,9 +17,9 @@ echo "  EJECUCIÓN BATCH BANCARIO"
 echo "=========================================="
 echo ""
 
-# Verificar que existe el ejecutable
-if [ ! -f "BANKPROC" ]; then
-    echo -e "${YELLOW}BANKPROC no encontrado. Compilando...${NC}"
+# Verificar que existe el ejecutable en bin/
+if [ ! -f "bin/BANKPROC" ]; then
+    echo -e "${YELLOW}bin/BANKPROC no encontrado. Compilando...${NC}"
     ./scripts/compile.sh
     if [ $? -ne 0 ]; then
         echo -e "${RED}✗ Error en la compilación. Abortando.${NC}"
@@ -70,7 +70,7 @@ echo "  INICIANDO PROCESAMIENTO"
 echo "=========================================="
 echo ""
 
-./BANKPROC
+./bin/BANKPROC
 EXIT_CODE=$?
 
 echo ""

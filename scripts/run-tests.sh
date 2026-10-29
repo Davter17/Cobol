@@ -62,7 +62,7 @@ cp data/CUENTAS.DAT data/CUENTAS.DAT.test-backup 2>/dev/null || true
 rm -f output/ERRORS.DAT output/AUDIT.DAT output/HISTORICO.DAT output/REPORT.DAT
 
 # Ejecutar BANKPROC
-./BANKPROC > /dev/null 2>&1
+./bin/BANKPROC > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}ERROR: BANKPROC falló${NC}"

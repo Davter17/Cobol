@@ -9,8 +9,9 @@
 *.exe
 *.EXE
 
-# Executables without extension (Linux/Mac)
-# These patterns match files in root and subdirectories
+# All compiled COBOL executables (no extension on Linux/Mac)
+# Pattern matches any executable file in root directory
+# that matches common COBOL program names
 /BANKPROC
 /READMOV
 /SEARCHACC
@@ -19,9 +20,11 @@
 /WRITERR
 /READACC
 /HELLO
-/EXAMPLE-1
-/EXAMPLE-2
-/TEST-COMMON
+/EXAMPLE-*
+/TEST-*
+
+# Bin directory for compiled executables
+bin/
 
 # Object files
 *.o

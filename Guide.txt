@@ -751,7 +751,7 @@ FASE 12: DOCUMENTACION
 Objetivo: Crear documentacion profesional que haga tu proyecto
           entendible y atractivo para reclutadores.
 
-[ ] PASO 12.1 - README.md profesional
+[X] PASO 12.1 - README.md profesional
     QUE:     README.md completo con:
              - Descripcion del proyecto
              - Arquitectura
@@ -767,7 +767,7 @@ Objetivo: Crear documentacion profesional que haga tu proyecto
     CHECK:   Alguien que no conozca el proyecto puede entender
              que hace y como ejecutarlo leyendo el README.
 
-[ ] PASO 12.2 - Documentacion de record layouts
+[X] PASO 12.2 - Documentacion de record layouts
     QUE:     docs/record-layouts.md con el formato exacto
              de cada fichero (byte a byte).
     POR QUE: En COBOL empresarial, los record layouts son
@@ -782,7 +782,7 @@ Objetivo: Crear documentacion profesional que haga tu proyecto
     CHECK:   Las posiciones y longitudes son correctas
              y coherentes con los COPYBOOKS.
 
-[ ] PASO 12.3 - Documentacion de arquitectura
+[X] PASO 12.3 - Documentacion de arquitectura
     QUE:     docs/architecture.md con diagrama del sistema.
     POR QUE: Muestra vision de conjunto, no solo codigo.
     CONCEPTO: Diagramas de arquitectura, documentacion.
@@ -795,7 +795,7 @@ Objetivo: Crear documentacion profesional que haga tu proyecto
              - Relacion entre componentes
     CHECK:   El diagrama es claro y completo.
 
-[ ] PASO 12.4 - Documentacion de codigos de error
+[X] PASO 12.4 - Documentacion de codigos de error
     QUE:     docs/error-codes.md con todos los codigos
              de error y su significado.
     POR QUE: Es documentacion de referencia esencial
@@ -926,7 +926,7 @@ Fase 8:  Informes            [4/4]  pasos
 Fase 9:  JCL                 [4/4]  pasos
 Fase 10: Scripts             [3/3]  pasos
 Fase 11: Testing             [3/3]  pasos
-Fase 12: Documentacion       [___/4]  pasos
+Fase 12: Documentacion       [4/4]  pasos
 Fase 13: Publicacion         [___/5]  pasos
 Fase 14: Modernizacion       [___/2]  pasos (opcional)
                                 ─────
