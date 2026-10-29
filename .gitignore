@@ -46,6 +46,9 @@ output/AUDIT.DAT
 # ============================================
 # BACKUP AND TEMPORARY FILES
 # ============================================
+# Backup directory (generated during execution)
+backups/
+
 # Backup files
 *.bak
 *.BAK
