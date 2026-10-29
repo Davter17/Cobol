@@ -656,7 +656,7 @@ FASE 10: SCRIPTS DE AUTOMATIZACION
 Objetivo: Crear scripts para compilar, ejecutar y generar
           datos de prueba. Muestra que sabes automatizar.
 
-[ ] PASO 10.1 - Script de compilacion
+[X] PASO 10.1 - Script de compilacion
     QUE:     scripts/compile.sh que compile todos los
              programas COBOL del proyecto.
     POR QUE: Automatiza la compilacion. Un reclutador puede
@@ -671,7 +671,7 @@ Objetivo: Crear scripts para compilar, ejecutar y generar
     CHECK:   Ejecutar ./scripts/compile.sh y verificar
              que todo compila.
 
-[ ] PASO 10.2 - Script de ejecucion
+[X] PASO 10.2 - Script de ejecucion
     QUE:     scripts/run.sh que ejecute el batch completo.
     POR QUE: Permite ejecutar el sistema facilmente.
     CONCEPTO: Bash scripting, ejecucion de programas.
@@ -683,7 +683,7 @@ Objetivo: Crear scripts para compilar, ejecutar y generar
              - Indica donde estan los ficheros de salida
     CHECK:   Ejecutar ./scripts/run.sh y ver el informe.
 
-[ ] PASO 10.3 - Script de generacion de datos
+[X] PASO 10.3 - Script de generacion de datos
     QUE:     scripts/generate-test-data.sh que genere
              ficheros de prueba.
     POR QUE: Permite a cualquiera generar datos de prueba
@@ -924,7 +924,7 @@ Fase 6:  Escritura ficheros  [3/3]  pasos
 Fase 7:  Programa principal  [6/6]  pasos
 Fase 8:  Informes            [4/4]  pasos
 Fase 9:  JCL                 [4/4]  pasos
-Fase 10: Scripts             [___/3]  pasos
+Fase 10: Scripts             [3/3]  pasos
 Fase 11: Testing             [___/3]  pasos
 Fase 12: Documentacion       [___/4]  pasos
 Fase 13: Publicacion         [___/5]  pasos
