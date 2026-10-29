@@ -880,7 +880,7 @@ FASE 14 (OPCIONAL): MODERNIZACION LEGACY
 Objetivo: Anadir una capa moderna que se integre con el
           sistema COBOL. Esto te diferencia enormemente.
 
-[ ] PASO 14.1 - API REST que lea los ficheros COBOL
+[X] PASO 14.1 - API REST que lee los ficheros COBOL
     QUE:     API en Python (FastAPI) o Java (Spring Boot)
              que lea CUENTAS.DAT y MOVIMIENTOS.DAT.
     POR QUE: Demuestra que puedes conectar sistemas legacy
@@ -896,7 +896,7 @@ Objetivo: Anadir una capa moderna que se integre con el
     CHECK:   La API devuelve datos correctos leidos
              directamente de los ficheros COBOL.
 
-[ ] PASO 14.2 - Documentar la integracion
+[X] PASO 14.2 - Documentar la integracion
     QUE:     docs/modernization.md explicando la arquitectura
              hibrida.
     POR QUE: La integracion legacy-moderno es tu valor
@@ -928,7 +928,7 @@ Fase 10: Scripts             [3/3]  pasos
 Fase 11: Testing             [3/3]  pasos
 Fase 12: Documentacion       [4/4]  pasos
 Fase 13: Publicacion         [5/5]  pasos
-Fase 14: Modernizacion       [___/2]  pasos (opcional)
+Fase 14: Modernizacion       [2/2]  pasos (opcional)
                                 ─────
                          TOTAL: 54 pasos
 

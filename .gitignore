@@ -26,6 +26,11 @@
 # Bin directory for compiled executables
 bin/
 
+# Python virtual environment
+api/venv/
+api/__pycache__/
+api/*.pyc
+
 # Object files
 *.o
 *.obj
