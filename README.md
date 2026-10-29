@@ -121,7 +121,7 @@ cobc --version
 ### 1. Clonar el repositorio
 
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Davter17/Cobol.git
 cd CobolFinal
 ```
 
