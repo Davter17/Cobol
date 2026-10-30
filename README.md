@@ -165,13 +165,13 @@ cat output/REPORT.DAT
 
 ### 🎥 Ejecución del Sistema COBOL
 
-<video src="images/ejecucion.mp4" controls width="100%"></video>
+![Ejecución del sistema](images/ejecucion.gif)
 
 *Procesamiento batch de 58 movimientos con validación en cascada*
 
 ### 🎥 Verificación Automática
 
-<video src="images/verificacion.mp4" controls width="100%"></video>
+![Verificación automática](images/verificacion.gif)
 
 *29 pruebas de integridad pasando correctamente*
 
