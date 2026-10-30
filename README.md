@@ -161,6 +161,34 @@ cobc -x -free cobol/BANKPROC.cob
 cat output/REPORT.DAT
 ```
 
+## 📸 Demostración Visual
+
+### 🎥 Ejecución del Sistema COBOL
+
+<video src="images/ejecucion.mp4" controls width="100%"></video>
+
+*Procesamiento batch de 58 movimientos con validación en cascada*
+
+### 🎥 Verificación Automática
+
+<video src="images/verificacion.mp4" controls width="100%"></video>
+
+*29 pruebas de integridad pasando correctamente*
+
+### Documentación de la API (Swagger UI)
+
+![API Documentation](images/captura-api-docs.png)
+
+*Documentación interactiva de los endpoints REST generada automáticamente por FastAPI*
+
+### Respuesta JSON de la API
+
+![API Response](images/captura-api-response.png)
+
+*Datos leídos directamente de ficheros COBOL y convertidos a JSON*
+
+---
+
 ## 📊 Ejemplo de Output
 
 ### Informe Profesional (REPORT.DAT)
